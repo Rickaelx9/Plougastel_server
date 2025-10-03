@@ -43,16 +43,13 @@ PRUNE_ARGS="--keep-weekly=4 --keep-monthly=3"
 
 # --- STEP 0: INITIALIZE REPOSITORIES (if they don't exist) ---
 echo "Checking for repositories..."
-# Unencrypted Repo
-if [ ! -d "$REPO_UNENCRYPTED" ]; then
-    echo "Initializing UNENCRYPTED Borg repository..."
+# New, more robust check - looks for the repo's config file
+if [ ! -f "$REPO_UNENCRYPTED/config" ]; then
+    echo "Initializing UNENCRYPTED Immich repository..."
     borg init --encryption=none "$REPO_UNENCRYPTED"
 fi
-
-# Encrypted Repo
-if [ ! -d "$REPO_ENCRYPTED" ]; then
-    echo "Initializing ENCRYPTED Borg repository..."
-    # The passphrase is automatically used from the BORG_PASSPHRASE environment variable
+if [ ! -f "$REPO_ENCRYPTED/config" ]; then
+    echo "Initializing ENCRYPTED Immich repository..."
     borg init --encryption=repokey-blake2 "$REPO_ENCRYPTED"
 fi
 
