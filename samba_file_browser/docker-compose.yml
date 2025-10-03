@@ -7,7 +7,7 @@ services:
             - "139:139"
             - "445:445"
         volumes:
-            - /mnt/hdd_primary/public_share:/mount
+            - /mnt/ssd_primary/public_share:/mount
         environment:
             - TZ=Europe/Paris
             # --- THE FIX: Match the container user's ID to the host user's ID ---
@@ -25,7 +25,7 @@ services:
         ports:
             - "8080:80"
         volumes:
-            - /mnt/hdd_primary/public_share:/srv
+            - /mnt/ssd_primary/public_share:/srv
             - ./filebrowser-db:/database
         environment:
             - PUID=1000
