@@ -1,0 +1,6 @@
+{
+    "ffmpeg": {
+        "accel": "rkmpp",
+        "acceptedVideoCodecs": ["h264"]
+    }
+}

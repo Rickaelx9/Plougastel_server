@@ -1,0 +1,36 @@
+services:
+    # Samba container for local network sharing
+    samba:
+        image: dperson/samba
+        container_name: samba-server
+        ports:
+            - "139:139"
+            - "445:445"
+        volumes:
+            - /mnt/hdd_primary/public_share:/mount
+        environment:
+            - TZ=Europe/Paris
+            # --- THE FIX: Match the container user's ID to the host user's ID ---
+            - USERID=1000
+            - GROUPID=1000
+        command: >
+            -u "pi;raspberry"
+            -s "Public;/mount;yes;no;no"
+        restart: unless-stopped
+
+    # File Browser container for web access
+    filebrowser:
+        image: filebrowser/filebrowser
+        container_name: web-file-manager
+        ports:
+            - "8080:80"
+        volumes:
+            - /mnt/hdd_primary/public_share:/srv
+            - ./filebrowser-db:/database
+        environment:
+            - PUID=1000
+            - PGID=1000
+            - TZ=Europe/Paris
+            - FB_DATABASE=/database/filebrowser.db
+            - FB_ROOT=/srv
+        restart: unless-stopped
