@@ -5,7 +5,8 @@ services:
     immich-server:
         container_name: immich_server
         image: ghcr.io/immich-app/immich-server:${IMMICH_VERSION:-release}
-        # Memory limit set to 1.5GB
+        cpus: "3.0"
+        # Memory limit set to 4GB
         mem_limit: 4g
         # Granting access to the Pi's video hardware for acceleration
         devices:
@@ -28,6 +29,7 @@ services:
     immich-machine-learning:
         container_name: immich_machine_learning
         image: ghcr.io/immich-app/immich-machine-learning:${IMMICH_VERSION:-release}
+        cpus: "1.0"
         # Memory limit set to 2GB
         mem_limit: 2g
         volumes:
