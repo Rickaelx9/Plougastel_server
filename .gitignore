@@ -21,3 +21,4 @@ borg/.immich_backup.env
 .trilium_backup.env
 .env
 borg/.shares_backup.env
+backup_log/
