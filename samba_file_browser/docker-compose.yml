@@ -23,7 +23,7 @@ services:
         image: filebrowser/filebrowser
         container_name: web-file-manager
         ports:
-            - "8080:80"
+            - "8085:80"
         volumes:
             - /mnt/ssd_primary/public_share:/srv
             - ./filebrowser-db:/database
