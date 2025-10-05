@@ -22,3 +22,5 @@ borg/.immich_backup.env
 .env
 borg/.shares_backup.env
 backup_log/
+.vaultwarden_backup.env
+vaultwarden/vw-data/
