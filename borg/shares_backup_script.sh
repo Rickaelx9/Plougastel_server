@@ -13,44 +13,76 @@ fi
 SOURCE_PATH="$SHARES_DATA_PATH"
 REPO_UNENCRYPTED="$UNENCRYPTED_SHARES_BACKUP_PATH"
 REPO_ENCRYPTED="$ENCRYPTED_SHARES_BACKUP_PATH"
-ARCHIVE_NAME="shares-{now:%Y-%m-%d_%H-%M-%S}"
+ARCHIVE_NAME="shares_and_db-{now:%Y-%m-%d_%H-%M-%S}"
 PRUNE_ARGS="--keep-daily=7 --keep-weekly=4 --keep-monthly=6"
 
-echo "### Starting Shares Backup Process ###"
+# --- Function to ensure cleanup happens even if script fails ---
+cleanup() {
+    echo "--> Running cleanup..."
+    # Only try to start the container if the script is exiting due to an error.
+    # Otherwise, just remove the temp file.
+    if [ "$?" != "0" ]; then
+      echo "Script failed. Ensuring container is running..."
+      docker compose --project-directory "$FILEBROWSER_PROJECT_PATH" start filebrowser || echo "Could not start container."
+    fi
 
-# --- INITIALIZE REPOSITORIES (IMPROVED CHECK) ---
+    # Always remove the temporary database copy
+    rm -f "$DB_BACKUP_FILE"
+    echo "--> Cleanup complete."
+}
+trap cleanup EXIT
+
+echo "### Starting Backup Process ###"
+
+# --- INITIALIZE REPOSITORIES ---
+# ... (this section is unchanged) ...
 if [ ! -f "$REPO_UNENCRYPTED/config" ]; then
-    echo "Initializing UNENCRYPTED Shares repository..."
+    echo "Initializing UNENCRYPTED repository..."
     borg init --encryption=none "$REPO_UNENCRYPTED"
 fi
 if [ ! -f "$REPO_ENCRYPTED/config" ]; then
-    echo "Initializing ENCRYPTED Shares repository..."
+    echo "Initializing ENCRYPTED repository..."
     borg init --encryption=repokey-blake2 "$REPO_ENCRYPTED"
 fi
 
+# --- SAFELY COPY THE DATABASE ---
+echo "--> Preparing database for backup..."
+echo "Stopping FileBrowser container to ensure data consistency..."
+# MODIFIED: Added --project-directory to ensure the command runs in the correct context
+docker compose --project-directory "$FILEBROWSER_PROJECT_PATH" stop filebrowser
+
+echo "Copying database file to temporary location..."
+cp "$DB_SOURCE_FILE" "$DB_BACKUP_FILE"
+
+echo "Restarting FileBrowser container... (Downtime is over)"
+# MODIFIED: Added --project-directory here as well
+docker compose --project-directory "$FILEBROWSER_PROJECT_PATH" start filebrowser
+echo "✅ Database is prepared and service is back online."
+
+
 # --- CREATE LOCAL BACKUPS IN PARALLEL ---
-echo "--> Starting local Shares backups in parallel..."
+echo "--> Starting local backups in parallel (Shares + Database)..."
 
 (
-    echo "Starting unencrypted Shares backup..."
-    borg create --stats --progress "$REPO_UNENCRYPTED::$ARCHIVE_NAME" "$SOURCE_PATH"
+    echo "Starting unencrypted backup..."
+    borg create --stats --progress "$REPO_UNENCRYPTED::$ARCHIVE_NAME" "$SOURCE_PATH" "$DB_BACKUP_FILE"
     borg prune $PRUNE_ARGS "$REPO_UNENCRYPTED"
-    echo "✅ Unencrypted Shares backup complete."
+    echo "✅ Unencrypted backup complete."
 ) &
 
 (
-    echo "Starting encrypted Shares backup..."
-    borg create --stats --progress "$REPO_ENCRYPTED::$ARCHIVE_NAME" "$SOURCE_PATH"
+    echo "Starting encrypted backup..."
+    borg create --stats --progress "$REPO_ENCRYPTED::$ARCHIVE_NAME" "$SOURCE_PATH" "$DB_BACKUP_FILE"
     borg prune $PRUNE_ARGS "$REPO_ENCRYPTED"
-    echo "✅ Encrypted Shares backup complete."
+    echo "✅ Encrypted backup complete."
 ) &
 
 wait
-echo "--> All local Shares backups have finished."
+echo "--> All local backups have finished."
 
 # --- SYNCHRONIZE OFFSITE BACKUP TO GOOGLE DRIVE ---
-echo "--> Synchronizing encrypted Shares repository to Google Drive..."
+echo "--> Synchronizing encrypted repository to Google Drive..."
 rclone sync --progress "$REPO_ENCRYPTED" "$RCLONE_SHARES_REMOTE_PATH"
-echo "✅ Off-site Shares synchronization complete."
+echo "✅ Off-site synchronization complete."
 
-echo "### 🎉 All Shares backup tasks finished successfully! ###"
+echo "### 🎉 All backup tasks finished successfully! ###"
