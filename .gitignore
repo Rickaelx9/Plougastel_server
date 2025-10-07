@@ -24,3 +24,5 @@ borg/.shares_backup.env
 backup_log/
 .vaultwarden_backup.env
 vaultwarden/vw-data/
+webdav_file_browser/filebrowser-db/
+paperless-*
