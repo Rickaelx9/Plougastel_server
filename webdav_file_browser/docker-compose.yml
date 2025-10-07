@@ -1,0 +1,25 @@
+services:
+    webdav:
+        image: derkades/webdav
+        volumes: ["/mnt/ssd_primary/public_share:/data"]
+        ports: ["8185:80"]
+        environment:
+            USERNAME: admin
+            PASSWORD: admin
+        restart: unless-stopped
+
+    filebrowser:
+        image: filebrowser/filebrowser
+        container_name: web-file-manager
+        ports:
+            - "8085:80"
+        volumes:
+            - /mnt/ssd_primary/public_share:/srv
+            - ./filebrowser-db:/database
+        environment:
+            - PUID=1000
+            - PGID=1000
+            - TZ=Europe/Paris
+            - FB_DATABASE=/database/filebrowser.db
+            - FB_ROOT=/srv
+        restart: unless-stopped
