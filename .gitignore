@@ -26,3 +26,4 @@ backup_log/
 vaultwarden/vw-data/
 webdav_file_browser/filebrowser-db/
 paperless-*
+.paperless_backup.env
