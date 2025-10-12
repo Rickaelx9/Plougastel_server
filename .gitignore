@@ -27,3 +27,5 @@ vaultwarden/vw-data/
 webdav_file_browser/filebrowser-db/
 paperless-*
 .paperless_backup.env
+jellyfin/cache/
+jellyfin/config/
