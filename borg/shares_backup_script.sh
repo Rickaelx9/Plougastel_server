@@ -35,7 +35,6 @@ trap cleanup EXIT
 echo "### Starting Backup Process ###"
 
 # --- INITIALIZE REPOSITORIES ---
-# ... (this section is unchanged) ...
 if [ ! -f "$REPO_UNENCRYPTED/config" ]; then
     echo "Initializing UNENCRYPTED repository..."
     borg init --encryption=none "$REPO_UNENCRYPTED"
@@ -48,14 +47,12 @@ fi
 # --- SAFELY COPY THE DATABASE ---
 echo "--> Preparing database for backup..."
 echo "Stopping FileBrowser container to ensure data consistency..."
-# MODIFIED: Added --project-directory to ensure the command runs in the correct context
 docker compose --project-directory "$FILEBROWSER_PROJECT_PATH" stop filebrowser
 
 echo "Copying database file to temporary location..."
 cp "$DB_SOURCE_FILE" "$DB_BACKUP_FILE"
 
 echo "Restarting FileBrowser container... (Downtime is over)"
-# MODIFIED: Added --project-directory here as well
 docker compose --project-directory "$FILEBROWSER_PROJECT_PATH" start filebrowser
 echo "✅ Database is prepared and service is back online."
 
@@ -65,14 +62,16 @@ echo "--> Starting local backups in parallel (Shares + Database)..."
 
 (
     echo "Starting unencrypted backup..."
-    borg create --stats --progress "$REPO_UNENCRYPTED::$ARCHIVE_NAME" "$SOURCE_PATH" "$DB_BACKUP_FILE"
+    # MODIFIED: Added --exclude flag to skip jellyfin_media
+    borg create --stats --progress --exclude "$SOURCE_PATH/jellyfin_media" "$REPO_UNENCRYPTED::$ARCHIVE_NAME" "$SOURCE_PATH" "$DB_BACKUP_FILE"
     borg prune $PRUNE_ARGS "$REPO_UNENCRYPTED"
     echo "✅ Unencrypted backup complete."
 ) &
 
 (
     echo "Starting encrypted backup..."
-    borg create --stats --progress "$REPO_ENCRYPTED::$ARCHIVE_NAME" "$SOURCE_PATH" "$DB_BACKUP_FILE"
+    # MODIFIED: Added --exclude flag to skip jellyfin_media
+    borg create --stats --progress --exclude "$SOURCE_PATH/jellyfin_media" "$REPO_ENCRYPTED::$ARCHIVE_NAME" "$SOURCE_PATH" "$DB_BACKUP_FILE"
     borg prune $PRUNE_ARGS "$REPO_ENCRYPTED"
     echo "✅ Encrypted backup complete."
 ) &
