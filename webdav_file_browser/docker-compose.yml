@@ -19,6 +19,7 @@ services:
         environment:
             - PUID=1000
             - PGID=1000
+            - UMASK=002
             - TZ=Europe/Paris
             - FB_DATABASE=/database/filebrowser.db
             - FB_ROOT=/srv
