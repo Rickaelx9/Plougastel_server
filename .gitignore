@@ -29,3 +29,4 @@ paperless-*
 .paperless_backup.env
 jellyfin/cache/
 jellyfin/config/
+qbittorrent/config

@@ -1,0 +1,26 @@
+version: "3.8"
+services:
+  qbittorrent:
+    image: lscr.io/linuxserver/qbittorrent:latest
+    container_name: qbittorrent
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Paris
+      - WEBUI_PORT=9091
+      # Options pour éviter les problèmes de permissions
+      - UMASK=002  # Permet l'écriture par le groupe (ex: www-data)
+    dns:
+      - 8.8.8.8
+      - 1.1.1.1
+    volumes:
+      - /home/pi/qbittorrent/config:/config
+      # Montage des dossiers de destination (film/série)
+      - /mnt/ssd_primary/public_share/jellyfin_media/film:/downloads/film
+      - /mnt/ssd_primary/public_share/jellyfin_media/série:/downloads/serie
+    ports:
+      - 9091:9091
+      - 6881:6881
+      - 6881:6881/udp
+    restart: unless-stopped
+
