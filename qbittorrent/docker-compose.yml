@@ -17,7 +17,7 @@ services:
       - /home/pi/qbittorrent/config:/config
       # Montage des dossiers de destination (film/série)
       - /mnt/ssd_primary/public_share/jellyfin_media/film:/downloads/film
-      - /mnt/ssd_primary/public_share/jellyfin_media/série:/downloads/serie
+      - /mnt/ssd_primary/public_share/jellyfin_media/serie:/downloads/serie
     ports:
       - 9091:9091
       - 6881:6881

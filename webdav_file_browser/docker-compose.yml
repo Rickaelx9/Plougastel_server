@@ -23,4 +23,5 @@ services:
             - TZ=Europe/Paris
             - FB_DATABASE=/database/filebrowser.db
             - FB_ROOT=/srv
+            - FB_NOAUTH=true
         restart: unless-stopped
