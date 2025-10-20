@@ -10,7 +10,7 @@ services:
       - ./config:/config
       - ./cache:/cache
       - type: bind
-        source: /mnt/ssd_primary/public_share/jellyfin_media
+        source: /mnt/hdd_primary/media
         target: /media
     restart: 'unless-stopped'
     # Optional - alternative address used for autodiscovery
