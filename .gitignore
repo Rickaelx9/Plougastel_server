@@ -31,3 +31,5 @@ jellyfin/cache/
 jellyfin/config/
 qbittorrent/config
 gluetun
+fb-public-config
+fb-public-db

@@ -1,27 +1,51 @@
 services:
     webdav:
         image: derkades/webdav
-        volumes: ["/mnt/ssd_primary/public_share:/data"]
-        ports: ["8185:80"]
+        container_name: webdav-public
+        volumes:
+            - /mnt/ssd_primary/public_share:/data
+        ports:
+            - "8185:80"
         environment:
             USERNAME: admin
             PASSWORD: admin
         restart: unless-stopped
 
-    filebrowser:
-        image: filebrowser/filebrowser
-        container_name: web-file-manager
+    filebrowser-public:
+        image: filebrowser/filebrowser:latest
+        container_name: filebrowser-public
+        # Either run as your user:
+        user: "1001:1001"
+        command:
+            [
+                "--database",
+                "/database/filebrowser.db",
+                "--noauth",
+                "--root",
+                "/data",
+            ]
         ports:
             - "8085:80"
         volumes:
-            - /mnt/ssd_primary/public_share:/srv
-            - ./filebrowser-db:/database
+            - /mnt/ssd_primary/public_share:/data
+            - ./fb-public-db:/database
+            - ./fb-public-config:/config
         environment:
-            - PUID=1000
-            - PGID=1000
-            - UMASK=002
             - TZ=Europe/Paris
-            - FB_DATABASE=/database/filebrowser.db
-            - FB_ROOT=/srv
             - FB_NOAUTH=true
+        restart: unless-stopped
+
+    filebrowser-secret:
+        image: filebrowser/filebrowser:latest
+        container_name: filebrowser-secret
+        user: "1002:1002"
+        command: ["--database", "/database/filebrowser.db", "--root", "/data"]
+        ports:
+            - "8087:80"
+        volumes:
+            - /mnt/hdd_primary/secret:/data
+            - ./fb-secret-db:/database
+            - ./fb-secret-config:/config
+        environment:
+            - TZ=Europe/Paris
         restart: unless-stopped
