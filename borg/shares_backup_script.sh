@@ -63,7 +63,7 @@ echo "--> Starting local backups in parallel (Shares + Database)..."
 (
     echo "Starting unencrypted backup..."
     # MODIFIED: Added --exclude flag to skip jellyfin_media
-    borg create --stats --progress --exclude "$SOURCE_PATH/jellyfin_media" "$REPO_UNENCRYPTED::$ARCHIVE_NAME" "$SOURCE_PATH" "$DB_BACKUP_FILE"
+    borg create --stats --progress --exclude "$SOURCE_PATH/torrent" "$REPO_UNENCRYPTED::$ARCHIVE_NAME" "$SOURCE_PATH" "$DB_BACKUP_FILE"
     borg prune $PRUNE_ARGS "$REPO_UNENCRYPTED"
     echo "✅ Unencrypted backup complete."
 ) &
@@ -71,7 +71,7 @@ echo "--> Starting local backups in parallel (Shares + Database)..."
 (
     echo "Starting encrypted backup..."
     # MODIFIED: Added --exclude flag to skip jellyfin_media
-    borg create --stats --progress --exclude "$SOURCE_PATH/jellyfin_media" "$REPO_ENCRYPTED::$ARCHIVE_NAME" "$SOURCE_PATH" "$DB_BACKUP_FILE"
+    borg create --stats --progress --exclude "$SOURCE_PATH/torrent" "$REPO_ENCRYPTED::$ARCHIVE_NAME" "$SOURCE_PATH" "$DB_BACKUP_FILE"
     borg prune $PRUNE_ARGS "$REPO_ENCRYPTED"
     echo "✅ Encrypted backup complete."
 ) &
