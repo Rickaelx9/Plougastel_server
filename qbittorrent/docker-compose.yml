@@ -23,28 +23,43 @@ services:
       - BLOCK_SURVEILLANCE=off
       - BLOCK_ADS=off
 
-
-      # DNS: keep Cloudflare + Google, but securely via DNS-over-TLS
-      # (safer than raw 1.1.1.1/8.8.8.8 and avoids leaks)
-      - DOT_PROVIDERS=cloudflare,google
-      # Optional: disable DNS filtering if it blocks trackers
-      # - BLOCK_MALICIOUS=off
-
     volumes:
       - /home/pi/qbittorrent/gluetun:/gluetun
 
     # Publish qBittorrent ports here (since qbit shares this network)
     ports:
-      - 9091:9091          # qBittorrent WebUI
-      - 6881:6881          # BitTorrent TCP
-      - 6881:6881/udp      # BitTorrent UDP (DHT/PEX)
+      - 9091:9091           # qBittorrent
+      - 6881:6881
+      - 6881:6881/udp
+      - 5800:5800           # Firefox noVNC UI
 
+
+    restart: unless-stopped
+
+  firefox:
+    image: jlesage/firefox:latest
+    container_name: firefox
+    network_mode: "service:gluetun"
+    depends_on:
+      gluetun:
+        condition: service_started
+    environment:
+      - TZ=Europe/Paris
+      - USER_ID=1000
+      - GROUP_ID=1000
+      - VNC_PASSWORD=change_me_strong
+      - DARK_MODE=1
+      - ENABLE_CJK_FONT=0
+    volumes:
+      - /home/pi/firefox:/config
+      - /home/pi/qbit_watch:/config/downloads   # <— new: Firefox saves here
+      - /dev/shm:/dev/shm
+    shm_size: "1gb"
     restart: unless-stopped
 
   qbittorrent:
     image: lscr.io/linuxserver/qbittorrent:latest
     container_name: qbittorrent
-    # Share Gluetun's network so ALL traffic goes through the VPN
     network_mode: "service:gluetun"
     depends_on:
       gluetun:
@@ -60,6 +75,5 @@ services:
       - /mnt/hdd_primary/media/film:/downloads/film
       - /mnt/hdd_primary/media/serie:/downloads/serie
       - /mnt/ssd_primary/public_share/torrent:/downloads/torrent
-    # Do NOT publish ports or set DNS here; Gluetun handles those.
+      - /home/pi/qbit_watch:/watch              # <— new: qBittorrent watch
     restart: unless-stopped
-

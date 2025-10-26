@@ -35,3 +35,5 @@ fb-public-config
 fb-public-db
 webdav_file_browser/fb-secret-config/
 webdav_file_browser/fb-secret-db/
+.zed/
+firefox/
