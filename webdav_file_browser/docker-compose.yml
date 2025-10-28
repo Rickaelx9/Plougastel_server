@@ -15,7 +15,7 @@ services:
         image: filebrowser/filebrowser:latest
         container_name: filebrowser-public
         # Either run as your user:
-        user: "1001:1001"
+        user: "1000:1000"
         command:
             [
                 "--database",
@@ -28,6 +28,7 @@ services:
             - "8085:80"
         volumes:
             - /mnt/ssd_primary/public_share:/data
+            - /mnt/hdd_primary/media:/data/media
             - ./fb-public-db:/database
             - ./fb-public-config:/config
         environment:
