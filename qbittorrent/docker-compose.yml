@@ -51,8 +51,8 @@ services:
       - DARK_MODE=1
       - ENABLE_CJK_FONT=0
     volumes:
-      - /home/pi/firefox:/config
-      - /home/pi/qbit_watch:/config/downloads   # <— new: Firefox saves here
+      - /home/pi/qbittorrent/firefox:/config
+      - /home/pi/qbittorrent/qbit_watch:/config/downloads   # <— new: Firefox saves here
       - /dev/shm:/dev/shm
     shm_size: "1gb"
     restart: unless-stopped
