@@ -1,0 +1,11 @@
+services:
+  actual:
+    image: actualbudget/actual-server:latest
+    container_name: actual
+    restart: unless-stopped
+    environment:
+      - TZ=Europe/Paris
+    volumes:
+      - ./data:/data
+    ports:
+      - "127.0.0.1:5006:5006"

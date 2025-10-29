@@ -1,0 +1,23 @@
+# 8001 → Vaultwarden (unchanged)
+:8001 {
+  encode gzip
+  handle {
+    reverse_proxy 127.0.0.1:11001
+  }
+}
+
+# 8002 → Actual at site root "/"
+:8002 {
+  encode gzip
+  header {
+    # Needed for SAB/wasm
+    Cross-Origin-Opener-Policy "same-origin"
+    Cross-Origin-Embedder-Policy "require-corp"
+    # Recommended hardening
+    Cross-Origin-Resource-Policy "same-origin"
+    Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+    Referrer-Policy "no-referrer"
+    Permissions-Policy "interest-cohort=()"
+  }
+  reverse_proxy 127.0.0.1:5006
+}
