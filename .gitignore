@@ -38,3 +38,4 @@ webdav_file_browser/fb-secret-db/
 .zed/
 firefox/
 actual/data/
+.actual_backup.env
