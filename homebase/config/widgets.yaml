@@ -1,0 +1,4 @@
+- logo:
+    icon: http://plougastel:3000/icons/homepage.png
+    href: http://plougastel:3000
+    target: _self    # or _blank

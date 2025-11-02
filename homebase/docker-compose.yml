@@ -1,0 +1,26 @@
+networks:
+  infra:
+    name: infra
+    external: true   # create once with: docker network create infra
+
+services:
+  homepage:
+    image: ghcr.io/gethomepage/homepage:latest
+    container_name: homepage
+    restart: unless-stopped
+    networks: [infra]
+    user: 1000:1000
+    ports:
+      - "3000:3000"
+    environment:
+      - HOMEPAGE_TITLE=Pi Home
+      - TZ=Europe/Paris
+      - HOMEPAGE_LANG=fr
+      # Allow the hosts you'll use to access the UI:
+      - HOMEPAGE_ALLOWED_HOSTS=plougastel:3000,plougastel,localhost:3000,127.0.0.1:3000,100.103.209.76:5000
+      # If you also use the Pi's IP, add it too, e.g. 192.168.1.42:3000
+      # - HOMEPAGE_ALLOWED_HOSTS=plougastel:3000,plougastel,192.168.1.42:3000,localhost:3000,127.0.0.1:3000
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./config:/app/config
+      - ./public:/app/public:ro
