@@ -3,7 +3,7 @@ services:
         image: derkades/webdav
         container_name: webdav-public
         volumes:
-            - /mnt/ssd_primary/public_share:/data
+            - /mnt/hdd_primary/media/livre/News:/data
         ports:
             - "8185:80"
         environment:
