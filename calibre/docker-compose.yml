@@ -1,0 +1,14 @@
+services:
+  calibre:
+    image: lscr.io/linuxserver/calibre:latest
+    container_name: calibre
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - UMASK=002
+      - TZ=Europe/Paris
+    volumes:
+      - /home/pi/calibre/config:/config
+      - /home/pi/calibre/recipes:/recipes
+      - /mnt/hdd_primary/media/livre/News:/output
+    restart: unless-stopped
