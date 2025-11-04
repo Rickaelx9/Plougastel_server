@@ -14,7 +14,6 @@ mkdir -p "$OUTDIR" "$LOGDIR"
 # Optional readability tweaks for news (kept very light)
 EXTRA_CSS=$'html, body { margin: 0; }\nbody { line-height: 1.35; }\np { margin: 0 0 0.6em 0; }\nfigure { margin: 0; }\nimg, figure img, .article img { width: 100% !important; max-width: 100% !important; height: auto !important; }'
 
-
 run_recipe() {
   local recipe="$1" slug="$2" title="$3" profile="${4:-$DEFAULT_PROFILE}"
   local outfile="${OUTDIR}/${slug}_${DATE}.epub"
@@ -78,6 +77,37 @@ for entry in "${SOURCES[@]}"; do
   run_recipe "$recipe" "$slug" "$title" "$profile" || fail=$((fail+1))
 done
 
+# --- Move today's EPUBs into a per-day folder (no overwrite), robust ---
+DAYDIR="${OUTDIR}/${DATE}"
+mkdir -p "$DAYDIR" "/output/logs"
+
+echo "[INFO] $(date -Is) Scanning for today's EPUBs in ${OUTDIR} (pattern *_${DATE}.epub)"
+moved=0 skipped=0 errors=0
+
+set +e  # prevent set -e from killing the whole script on one failure
+while IFS= read -r -d '' f; do
+  base="${f##*/}"
+  dest="${DAYDIR}/${base}"
+  if [[ -e "$dest" ]]; then
+    echo "[SKIP] $(date -Is) Exists: ${dest}"
+    ((skipped++))
+  else
+    echo "[MOVE] $(date -Is) ${f} -> ${dest}"
+    if mv -- "$f" "$dest" 2>>"/output/logs/move_${DATE}.err"; then
+      ((moved++))
+    else
+      echo "[ERR ] $(date -Is) Failed to move: ${f} (see logs/move_${DATE}.err)"
+      ((errors++))
+    fi
+  fi
+done < <(find "$OUTDIR" -maxdepth 1 -type f -name "*_${DATE}.epub" -print0)
+set -e
+
+echo "[OK]  $(date -Is) Daily folder: ${DAYDIR} (moved=${moved}, skipped=${skipped}, errors=${errors})"
+echo "[INFO] $(date -Is) Contents of ${DAYDIR}:"
+ls -1 "${DAYDIR}" || true
+
+# --- Summary ---
 if (( fail > 0 )); then
   echo "[DONE] Completed with $fail failure(s). Check logs under $LOGDIR."
 else
