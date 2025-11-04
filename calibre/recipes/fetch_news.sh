@@ -35,21 +35,27 @@ run_recipe() {
     fi
   }
 
-  if convert_once "$profile"; then
-    echo "[OK] $(date -Is) Done: $outfile" | tee -a "$log"
-    return 0
-  fi
-
-  if [[ "$profile" == "kobo" ]]; then
-    echo "[WARN] $(date -Is) Kobo profile failed, retrying with 'tablet'…" | tee -a "$log"
-    if convert_once "tablet"; then
-      echo "[OK] $(date -Is) Done with fallback profile: $outfile" | tee -a "$log"
-      return 0
+  # Retry loop with backoff on 429
+  local tries=0 max=3 sleep_s=60
+  while :; do
+    if convert_once "$profile"; then
+      echo "[OK] $(date -Is) Done: $outfile" | tee -a "$log"
+      break
     fi
-  fi
-
-  echo "[ERROR] $slug failed" | tee -a "$log"
-  return 1
+    if grep -q "HTTP Error 429" "$log"; then
+      ((tries++))
+      if (( tries >= max )); then
+        echo "[ERROR] $(date -Is) $slug: giving up after $tries tries" | tee -a "$log"
+        return 1
+      fi
+      echo "[WARN] $(date -Is) $slug: 429 detected, sleeping ${sleep_s}s then retrying…" | tee -a "$log"
+      sleep "$sleep_s"
+      sleep_s=$(( sleep_s * 2 ))   # 60 -> 120 -> 240
+      continue
+    fi
+    # Non-429 failure: keep your existing Kobo→tablet fallback
+    break
+  done
 }
 
 # --- Sources ---
