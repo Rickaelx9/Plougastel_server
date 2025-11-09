@@ -1,0 +1,435 @@
+#!/usr/bin/env python
+# vim:fileencoding=utf-8
+# -*- coding: utf-8 -*-
+
+"""
+Libération (liberation.fr) — recette Calibre durcie contre HTTP 429
+- UA + Referer uniformes sur toutes les requêtes (y compris celles faites via fetch_url)
+- Throttle global + backoff exponentiel avec Retry-After
+- Intégration des images en base64 (data URI) pour éviter des fetchs sans Referer
+"""
+
+import base64
+import json
+import os
+import random
+import time
+from datetime import datetime, timedelta
+from hashlib import md5
+from urllib.parse import quote, urlencode, urlparse
+
+import mechanize
+from mechanize import Request
+from calibre.web.feeds.news import BasicNewsRecipe
+
+# ---------- Helpers ----------
+
+def guess_mime_from_url(url: str) -> str:
+    u = url.lower()
+    if '.avif' in u: return 'image/avif'
+    if '.webp' in u: return 'image/webp'
+    if '.png'  in u: return 'image/png'
+    if '.gif'  in u: return 'image/gif'
+    if '.svg'  in u: return 'image/svg+xml'
+    return 'image/jpeg'
+
+def to_data_uri(mime: str, raw: bytes) -> str:
+    import base64 as _b64
+    return f"data:{mime};base64," + _b64.b64encode(raw).decode('ascii')
+
+def resize(x):
+    if not x or not isinstance(x, dict): return None
+    # Privilégier les tailles ~750
+    for k, v in x.items():
+        if '_750' in k or 'width=750' in k:
+            return v
+    try:
+        return next(iter(x.values()))
+    except StopIteration:
+        return None
+
+m_fr = {
+    1:'Janvier',2:'Février',3:'Mars',4:'Avril',5:'Mai',6:'Juin',
+    7:'Juillet',8:'Août',9:'Septembre',10:'Octobre',11:'Novembre',12:'Décembre'
+}
+
+class Liberation(BasicNewsRecipe):
+    title = 'Libération'
+    __author__ = 'unkn0wn + durcissements anti-429'
+    description = "Recette Libération avec anti‑429: UA/Referer forcés, throttle global, backoff + Retry‑After, images en base64."
+    language = 'fr'
+
+    # Fenêtre temporelle (jours)
+    oldest_article = 1.15
+    remove_empty_feeds = True
+    ignore_duplicate_articles = {'title', 'url'}
+    articles_are_obfuscated = True
+
+    _now = datetime.now()
+    timefmt = ' [%s]' % _now.strftime(m_fr[_now.month] + ' %d, %Y')
+
+    key = 'YTdYMjltQnZRZVAxTGQ5OENnRjJySzV1VHpXWTRo'  # base64
+
+    masthead_url = 'https://journal.liberation.fr/img/logo.svg'
+    extra_css = '''
+        .desc { font-style: italic; color:#202020; }
+        .auth { font-size: small; }
+        .figc { font-size: small; text-align:center; color:#333; }
+        blockquote { color:#202020; }
+    '''
+
+    recipe_specific_options = {
+        'days': {
+            'short': 'Oldest article to download (days)',
+            'long': 'For example, 0.5 gives you 12h',
+            'default': str(oldest_article)
+        }
+    }
+
+    # Concurrence
+    simultaneous_downloads = 1
+
+    # Réseau: UA(s)
+    calibre_most_common_ua = (
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 '
+        '(KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36'
+    )
+    user_agents_pool = [
+        calibre_most_common_ua,
+        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
+        'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
+    ]
+    ROTATE_UA = False
+
+    # Délais et backoff
+    image_delay = 1.2             # délai fixe entre images
+    api_min_interval = 0.8        # min interval entre requêtes API/HTML sur le même host
+    img_min_interval = 1.2        # min interval entre requêtes images sur le même host
+    max_retries = 6               # une tentative initiale + 5 retries
+    initial_backoff = 2.0         # backoff de départ en s
+    backoff_cap = 60.0            # délai max
+    respect_retry_after = True
+
+    # Si l'image échoue après tous les essais, la retirer plutôt que laisser une URL externe
+    DROP_IMAGE_ON_PERSISTENT_429 = True
+
+    # Cache images
+    image_cache_dir = os.path.join(os.path.expanduser('~'), '.cache', 'calibre_liberation_images')
+
+    # Flux
+    feeds = [
+        ('Libération (tous les articles)', 'https://www.liberation.fr/arc/outboundfeeds/rss/?outputType=xml'),
+        ('France', 'https://www.liberation.fr/arc/outboundfeeds/rss-all/category/france/?outputType=xml'),
+        ('International', 'https://www.liberation.fr/arc/outboundfeeds/rss-all/category/international/?outputType=xml'),
+        ('Économie', 'https://www.liberation.fr/arc/outboundfeeds/rss-all/category/economie/?outputType=xml'),
+        ('Politique', 'https://www.liberation.fr/arc/outboundfeeds/rss-all/category/politique/?outputType=xml'),
+        ('Société', 'https://www.liberation.fr/arc/outboundfeeds/rss-all/category/societe/?outputType=xml'),
+        ('Planète', 'https://www.liberation.fr/arc/outboundfeeds/rss-all/category/planete/?outputType=xml'),
+        ('Sciences', 'https://www.liberation.fr/arc/outboundfeeds/rss-all/category/sciences/?outputType=xml'),
+        ('Culture', 'https://www.liberation.fr/arc/outboundfeeds/rss-all/category/culture/?outputType=xml'),
+        ('CheckNews', 'https://www.liberation.fr/arc/outboundfeeds/rss-all/category/checknews/?outputType=xml'),
+        ('Forums & événements', 'https://www.liberation.fr/arc/outboundfeeds/rss-all/category/forums/?outputType=xml'),
+    ]
+
+    # État interne throttle par hôte
+    _last_hit = {}
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        try:
+            self.oldest_article = float(self.recipe_specific_options.get('days', {}).get('default', str(self.oldest_article)))
+        except Exception:
+            pass
+        os.makedirs(self.image_cache_dir, exist_ok=True)
+
+    # ---------- Throttle ----------
+
+    def _host(self, url: str) -> str:
+        try:
+            return urlparse(url).netloc or ''
+        except Exception:
+            return ''
+
+    def _throttle(self, url: str, is_image: bool):
+        host = self._host(url)
+        now = time.time()
+        last = self._last_hit.get(host, 0.0)
+        min_interval = self.img_min_interval if is_image else self.api_min_interval
+        wait = last + min_interval - now
+        if wait > 0:
+            time.sleep(wait)
+        self._last_hit[host] = time.time()
+
+    # ---------- Navigateur ----------
+
+    def _choose_ua(self) -> str:
+        return random.choice(self.user_agents_pool) if self.ROTATE_UA else self.calibre_most_common_ua
+
+    def get_browser(self, *a, **kw):
+        kw['user_agent'] = self._choose_ua()
+        br = super().get_browser(*a, **kw)
+        br.set_handle_robots(False)
+        # Nettoie et force nos en-têtes
+        br.addheaders = [(k, v) for (k, v) in br.addheaders if k.lower() not in ('accept', 'accept-language', 'referer')]
+        br.addheaders += [
+            ('Accept', 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/*,*/*;q=0.8'),
+            ('Accept-Language', 'fr-FR,fr;q=0.9,en;q=0.8'),
+            ('Referer', 'https://www.liberation.fr/'),
+        ]
+        return br
+
+    # ---------- Open avec backoff + Retry-After ----------
+
+    def _sleep_for_retry(self, attempt: int, e) -> float:
+        # Retry-After en secondes ou date
+        if self.respect_retry_after:
+            try:
+                ra = None
+                if hasattr(e, 'hdrs'):
+                    ra = e.hdrs.get('Retry-After') or e.hdrs.get('retry-after')
+                elif hasattr(e, 'headers'):
+                    ra = e.headers.get('Retry-After') or e.headers.get('retry-after')
+                if ra:
+                    try:
+                        delay = float(ra)
+                        return min(delay, self.backoff_cap)
+                    except ValueError:
+                        # format date HTTP
+                        from email.utils import parsedate_to_datetime
+                        dt = parsedate_to_datetime(ra)
+                        delay = max(0.0, (dt - datetime.utcnow()).total_seconds())
+                        return min(delay, self.backoff_cap)
+            except Exception:
+                pass
+        delay = min(self.initial_backoff * (2 ** attempt) + random.random(), self.backoff_cap)
+        return delay
+
+    def _open_with_backoff(self, br, request_or_url, is_image=False):
+        url = request_or_url.get_full_url() if isinstance(request_or_url, mechanize.Request) else str(request_or_url)
+        for attempt in range(self.max_retries):
+            try:
+                if is_image:
+                    # délai fixe entre images + throttle global
+                    time.sleep(self.image_delay)
+                self._throttle(url, is_image=is_image)
+                return br.open(request_or_url)
+            except Exception as e:
+                msg = str(e)
+                code = getattr(e, 'code', None)
+                is_429 = (code == 429) or ('429' in msg) or ('Too Many Requests' in msg)
+                if is_429 and attempt < self.max_retries - 1:
+                    delay = self._sleep_for_retry(attempt, e)
+                    self.log(f'HTTP 429 détecté. Nouvelle tentative dans {delay:.2f}s (essai {attempt+1}/{self.max_retries})…')
+                    time.sleep(delay)
+                    continue
+                raise
+
+    # ---------- Cache images ----------
+
+    def _cache_path_for(self, url: str) -> str:
+        return os.path.join(self.image_cache_dir, md5(url.encode('utf-8')).hexdigest())
+
+    def fetch_image_bytes(self, url: str) -> bytes:
+        path = self._cache_path_for(url)
+        if os.path.exists(path):
+            try:
+                with open(path, 'rb') as f:
+                    return f.read()
+            except Exception:
+                pass
+
+        br = self.get_browser()
+        rq = Request(url=url, headers={
+            'Accept': 'image/avif,image/webp,image/*,*/*;q=0.8',
+            'Referer': 'https://www.liberation.fr/',
+            'User-Agent': self._choose_ua(),
+            'Cache-Control': 'no-cache',
+            'Accept-Encoding': 'gzip, deflate, br',
+        })
+        resp = self._open_with_backoff(br, rq, is_image=True)
+        data = resp.read()
+
+        try:
+            with open(path, 'wb') as f:
+                f.write(data)
+        except Exception:
+            pass
+        return data
+
+    def fetch_image_data_uri(self, url: str) -> str:
+        try:
+            raw = self.fetch_image_bytes(url)
+            mime = guess_mime_from_url(url)
+            return to_data_uri(mime, raw)
+        except Exception as e:
+            # Dernière chance: on retente une fois avec un gros délai si 429
+            if '429' in str(e) or 'Too Many Requests' in str(e):
+                time.sleep(10.0)
+                try:
+                    raw = self.fetch_image_bytes(url)
+                    mime = guess_mime_from_url(url)
+                    return to_data_uri(mime, raw)
+                except Exception as e2:
+                    self.log(f'Image toujours 429 après dernier essai, URL: {url} ({e2})')
+                    if self.DROP_IMAGE_ON_PERSISTENT_429:
+                        return ''  # enlève l’image
+            self.log(f'Image non intégrée (fallback désactivé) {url}: {e}')
+            return '' if self.DROP_IMAGE_ON_PERSISTENT_429 else url
+
+    # ---------- JSON -> HTML ----------
+
+    def _json_to_html(self, raw_json: bytes) -> str:
+        data = json.loads(raw_json)
+
+        title_txt = data.get('headlines', {}).get('basic', '') or ''
+        sub_txt = data.get('subheadlines', {}).get('basic', '') or ''
+        title = f'<h1>{title_txt}</h1>\n'
+        sub = f'<p class="desc">{sub_txt}</p>\n' if sub_txt else ''
+
+        # Auteurs + date
+        dt_txt = ''
+        try:
+            lud = data.get('last_updated_date') or data.get('display_date') or data.get('first_publish_date')
+            if lud and lud.endswith('Z'):
+                lud = lud[:-1]
+            if lud:
+                dt = datetime.fromisoformat(lud)
+                dt_txt = dt.strftime(m_fr[dt.month] + ' %d, %Y')
+        except Exception:
+            pass
+
+        authors = []
+        try:
+            authors = [x.get('name', '') for x in (data.get('credits', {}) or {}).get('by', []) if x.get('name')]
+        except Exception:
+            pass
+
+        auth = ''
+        if authors or dt_txt:
+            bit = ', '.join(authors) if authors else ''
+            if dt_txt: bit = (bit + ' | ' if bit else '') + dt_txt
+            auth = f'<p class="auth">{bit}</p>\n'
+
+        # Image de tête
+        lede = ''
+        try:
+            basic = (data.get('promo_items') or {}).get('basic') or {}
+            if basic.get('type') == 'image':
+                img_url = resize(basic.get('resized_image_urls', {}))
+                if img_url:
+                    caption = basic.get('caption', '') or ''
+                    img_src = self.fetch_image_data_uri(img_url)
+                    if img_src:
+                        lede = f'<br><img src="{img_src}"><div class="figc">{caption}</div>\n'
+        except Exception:
+            pass
+
+        # Corps
+        body = ''
+        for c in data.get('content_elements', []) or []:
+            t = c.get('type', '')
+            if t == 'text' and 'content' in c:
+                body += '\t<p>' + c['content'] + '</p>\n'
+            elif t == 'image':
+                img_url = resize(c.get('resized_image_urls', {}))
+                if img_url:
+                    caption = c.get('caption', '') or ''
+                    img_src = self.fetch_image_data_uri(img_url)
+                    if img_src:
+                        body += f'\t<br><img src="{img_src}"><div class="figc">{caption}</div>\n'
+            elif t == 'header' and 'content' in c:
+                body += '\t<h4>' + c['content'] + '</h4>\n'
+            elif t == 'list':
+                body += '\t<ul>'
+                for l in c.get('items', []) or []:
+                    if 'content' in l:
+                        body += '<li>' + l['content'] + '</li>'
+                body += '\t</ul>\n'
+            elif t == 'oembed_response':
+                raw_oembed = c.get('raw_oembed') or {}
+                html = raw_oembed.get('html')
+                if html:
+                    body += html + '\n'
+
+        return '<html><body><div>\n' + title + sub + auth + lede + body + '\n</div></body></html>'
+
+    # ---------- Article via API ARC ----------
+
+    def get_obfuscated_article(self, url):
+        slug = urlparse(url).path or '/'
+        br = self.get_browser()
+
+        b64 = base64.b64decode(self.key)
+        query = {
+            'website': 'liberation',
+            'website_url': str(slug),
+            'published': 'true',
+            '_sourceInclude': (
+                '_id,content_restrictions.content_code,credits,'
+                'promo_items.basic.caption,promo_items.basic.credits,promo_items.basic.url,'
+                'promo_items.basic.height,promo_items.basic.width,'
+                'promo_items.basic.resized_image_urls,promo_items.basic.last_updated_date,'
+                'promo_items.lead_art.caption,promo_items.lead_art.credits,promo_items.lead_art.url,'
+                'promo_items.lead_art.height,promo_items.lead_art.width,'
+                'promo_items.lead_art.resized_image_urls,promo_items.lead_art.last_updated_date,'
+                'source.additional_properties.legacy_url,content_elements,source.source_id,'
+                'taxonomy.primary_section.additional_properties.original._admin.alias_ids,'
+                'taxonomy.primary_section.additional_properties.original.navigation.nav_title,'
+                'taxonomy.primary_section._id,taxonomy.primary_section.name,'
+                'taxonomy.primary_section.path,taxonomy.tags,label,subheadlines.basic,'
+                'headlines.basic,source.additional_properties.legacy_url,source.source_type,'
+                'first_publish_date,display_date,canonical_url'
+            )
+        }
+        headers = {
+            'cache-control': 'public, max-age=5',
+            'x-api-key': b64.decode(),
+            'accept-encoding': 'gzip, deflate, br',
+            'user-agent': self._choose_ua(),
+            'referer': 'https://www.liberation.fr/',
+            'accept': 'application/json, text/javascript, */*; q=0.1',
+        }
+        api = 'https://arc.api.liberation.fr/content/v4/?' + urlencode(query, safe='()!', quote_via=quote)
+        rq = Request(url=api, headers=headers)
+
+        resp = self._open_with_backoff(br, rq, is_image=False)
+        raw = resp.read()
+        html = self._json_to_html(raw)
+        return {'data': html, 'url': url}
+
+    # ---------- Couverture ----------
+
+    def get_cover_url(self):
+        try:
+            soup = self.index_to_soup('https://journal.liberation.fr/')
+            cover = soup.find(name='img', attrs={'class': 'ui image'})
+            if cover and cover.get('src'):
+                src = cover['src']
+                if src.startswith('//'):
+                    return 'https:' + src
+                if src.startswith('/'):
+                    return 'https://journal.liberation.fr' + src
+                return src
+        except Exception:
+            pass
+        return None
+
+    # ---------- Surcharge fetch_url globale ----------
+    # On force l'utilisation de NOTRE mechanize + en-têtes, au lieu de super().fetch_url
+    # Cela élimine les "Using user agent: None" pour les ressources (images incluses).
+    def fetch_url(self, url, *args, **kwargs):
+        br = self.get_browser()
+        # Choisit si on traite comme image (pour throttle)
+        is_image = any(s in url.lower() for s in ('.jpg', '.jpeg', '.png', '.webp', '.gif', '.avif', '/resizer/'))
+        headers = {
+            'User-Agent': self._choose_ua(),
+            'Referer': 'https://www.liberation.fr/',
+            'Accept': ('image/avif,image/webp,image/*,*/*;q=0.8' if is_image
+                       else 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'),
+            'Accept-Language': 'fr-FR,fr;q=0.9,en;q=0.8',
+            'Accept-Encoding': 'gzip, deflate, br',
+            'Cache-Control': 'no-cache',
+        }
+        rq = Request(url=url, headers=headers)
+        resp = self._open_with_backoff(br, rq, is_image=is_image)
+        return resp.read()
