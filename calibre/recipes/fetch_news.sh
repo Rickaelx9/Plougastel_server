@@ -159,7 +159,6 @@ SOURCES=(
   "National Geographic.recipe|natgeo|National Geographic|kobo"
   "National Geographic Traveller.recipe|natgeotraveller|National Geographic Traveller|kobo"
   "National Geographic Magazine.recipe|natgeomag|National Geographic Magazine|kobo"
-  "Le Monde.recipe|lemonde|Le Monde|kobo"
   "Liberation.recipe|liberation|Libération|kobo"
   "The Skeptic.recipe|theskeptic|The Skeptic|kobo"
   "Wired Magazine, Monthly Edition.recipe|wiredmonthly|Wired Magazine, Monthly Edition|kobo"
