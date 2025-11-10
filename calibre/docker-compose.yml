@@ -10,7 +10,7 @@ services:
     volumes:
       - /home/pi/calibre/config:/config             # bibliothèque Calibre par défaut: /config/Calibre Library
       - /home/pi/calibre/recipes:/recipes           # vos recettes (facultatif)
-      - /mnt/hdd_primary/media/livre/News:/output   # vos EPUB "daily news" générés (facultatif)
+      - /mnt/hdd_primary/media/livre:/output   # vos EPUB "daily news" générés (facultatif)
     ports:
       - "8080:8080"  # GUI (noVNC/HTTP) - pour config
       - "8981:8181"  # GUI (HTTPS)      - pour config
