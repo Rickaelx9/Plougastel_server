@@ -41,3 +41,11 @@ actual/data/
 .actual_backup.env
 calibre/config/
 calibre/cron.log
+komga/database.sqlite
+komga/database.sqlite-shm
+komga/database.sqlite-wal
+komga/logs/
+komga/lucene/
+komga/tasks.sqlite
+komga/tasks.sqlite-shm
+komga/tasks.sqlite-wal
