@@ -3,6 +3,10 @@
         icon: jellyfin
         href: http://plougastel:8096
         description: Serveur média
+    - Komga:
+        icon: komga
+        href: http://plougastel:25600
+        description: Serveur manga
     - Immich:
         icon: immich
         href: http://plougastel:2283
