@@ -49,3 +49,4 @@ komga/lucene/
 komga/tasks.sqlite
 komga/tasks.sqlite-shm
 komga/tasks.sqlite-wal
+.vim/

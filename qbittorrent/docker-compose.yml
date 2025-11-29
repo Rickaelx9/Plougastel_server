@@ -47,7 +47,6 @@ services:
       - TZ=Europe/Paris
       - USER_ID=1000
       - GROUP_ID=1000
-      - VNC_PASSWORD=${VNC_PASSWORD}
       - DARK_MODE=1
       - ENABLE_CJK_FONT=0
     volumes:
