@@ -8,7 +8,7 @@ services:
         source: ./
         target: /config
       - type: bind
-        source: /mnt/hdd_primary/media/livre
+        source: /mnt/ssd_crucial/media/livre
         target: /data
     ports:
       - 25600:25600

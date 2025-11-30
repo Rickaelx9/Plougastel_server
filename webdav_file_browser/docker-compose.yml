@@ -3,7 +3,7 @@ services:
         image: derkades/webdav
         container_name: webdav-public
         volumes:
-            - /mnt/hdd_primary/media/livre/:/data
+            - /mnt/ssd_crucial/media/livre/:/data
         ports:
             - "8185:80"
         environment:
@@ -28,7 +28,8 @@ services:
             - "8085:80"
         volumes:
             - /mnt/ssd_primary/public_share:/data
-            - /mnt/hdd_primary/media:/data/media
+            - /mnt/hdd_primary/media:/data/hdd_primary/media
+            - /mnt/ssd_crucial/media:/data/ssd_crucial/media
             - ./fb-public-db:/database
             - ./fb-public-config:/config
         environment:

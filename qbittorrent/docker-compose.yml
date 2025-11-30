@@ -74,5 +74,6 @@ services:
       - /mnt/hdd_primary/media/film:/downloads/film
       - /mnt/hdd_primary/media/serie:/downloads/serie
       - /mnt/ssd_primary/public_share/torrent:/downloads/torrent
+      - /mnt/ssd_crucial/media:/downloads/media
       - /home/pi/qbittorrent/qbit_watch:/watch              # <— new: qBittorrent watch
     restart: unless-stopped
