@@ -1,6 +1,10 @@
 #!/bin/bash
 set -e  # Exit immediately on error
 
+# --- AJOUT GESTION ERREUR ---
+source "$HOME/borg/error_handler.sh"
+# ----------------------------
+
 # --- LOAD ENVIRONMENT VARIABLES ---
 if [ -f "$HOME/borg/.actual_backup.env" ]; then
     # Expected vars are documented below in the template
@@ -155,4 +159,3 @@ fi
 # --- CLEANUP SNAPSHOT ---
 rm -rf "$SNAP_BASE"
 echo "### 🎉 All Actual backup tasks finished successfully! ###"
-

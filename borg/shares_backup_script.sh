@@ -1,5 +1,6 @@
 #!/bin/bash
-set -e # Exit immediately if a command fails.
+set -e  # Exit immediately on error
+
 
 # --- LOAD ENVIRONMENT VARIABLES ---
 if [ -f "$HOME/borg/.shares_backup.env" ]; then
@@ -16,14 +17,21 @@ REPO_ENCRYPTED="$ENCRYPTED_SHARES_BACKUP_PATH"
 ARCHIVE_NAME="shares_and_db-{now:%Y-%m-%d_%H-%M-%S}"
 PRUNE_ARGS="--keep-daily=7 --keep-weekly=4 --keep-monthly=6"
 
+# Ajout de l'email cible
+RECIPIENT_EMAIL="mickael.ramilison@gmail.com"
+
 # --- Function to ensure cleanup happens even if script fails ---
 cleanup() {
+    local exit_code=$? # On capture le code de sortie immédiatement
     echo "--> Running cleanup..."
-    # Only try to start the container if the script is exiting due to an error.
-    # Otherwise, just remove the temp file.
-    if [ "$?" != "0" ]; then
-      echo "Script failed. Ensuring container is running..."
-      docker compose --project-directory "$FILEBROWSER_PROJECT_PATH" start filebrowser-public || echo "Could not start container."
+
+    # GESTION EMAIL D'ERREUR
+    if [ "$exit_code" != "0" ]; then
+        echo "Script failed with code $exit_code. Sending notification..."
+        echo -e "Le backup 'Shares' a échoué.\nCode: $exit_code\nDate: $(date)" | mail -s "🚨 ÉCHEC BACKUP : Shares" "$RECIPIENT_EMAIL"
+
+        echo "Script failed. Ensuring container is running..."
+        docker compose --project-directory "$FILEBROWSER_PROJECT_PATH" start filebrowser-public || echo "Could not start container."
     fi
 
     # Always remove the temporary database copy
@@ -55,7 +63,6 @@ cp "$DB_SOURCE_FILE" "$DB_BACKUP_FILE"
 echo "Restarting FileBrowser container... (Downtime is over)"
 docker compose --project-directory "$FILEBROWSER_PROJECT_PATH" start filebrowser-public
 echo "✅ Database is prepared and service is back online."
-
 
 # --- CREATE LOCAL BACKUPS IN PARALLEL ---
 echo "--> Starting local backups in parallel (Shares + Database)..."

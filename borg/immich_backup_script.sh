@@ -1,5 +1,9 @@
 #!/bin/bash
-set -e # Exit immediately if a command exits with a non-zero status.
+set -e  # Exit immediately on error
+
+# --- AJOUT GESTION ERREUR ---
+source "$HOME/borg/error_handler.sh"
+# ----------------------------
 
 # --- SCRIPT CONFIGURATION ---
 # Set to 'true' to run in test mode using temporary directories.
