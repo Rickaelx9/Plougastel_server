@@ -1,0 +1,18 @@
+services:
+  watchtower:
+    image: containrrr/watchtower
+    container_name: watchtower
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      # Nettoie les vieilles images après la mise à jour pour gagner de la place
+      - WATCHTOWER_CLEANUP=true
+      
+      # Format Cron : Secondes Minutes Heures JourMois Mois JourSemaine
+      # Ici : 0 sec, 0 min, 6 h, tous les jours
+      - WATCHTOWER_SCHEDULE=0 0 6 * * *
+      
+      # Important pour que ce soit 6h heure française (et pas UTC)
+      - TZ=Europe/Paris
+
