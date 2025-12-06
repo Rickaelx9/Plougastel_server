@@ -1,4 +1,50 @@
-- logo:
-    icon: http://plougastel:3000/icons/homepage.png
-    href: http://plougastel:3000
-    target: _self    # or _blank
+# 4 januari 2023 om 13:51:25 PST
+- datetime:
+    text_size: 3xl
+    locale: fr
+    format:
+      timeStyle: medium
+      dateStyle: long
+
+
+- openmeteo:
+    label: Paris
+    latitude: 48.8566
+    longitude: 2.3522
+    timezone: Europe/Paris
+    units: metric       # °C
+    cache: 5            # minutes de cache
+
+- resources:
+    label: HDD Backup
+    expanded: true
+    disk:
+      - /mnt/hdd_backup
+
+- resources:
+    label: HDD Primary
+    expanded: true
+    disk:
+      - /mnt/hdd_primary
+
+- resources:
+    label: SSD Crucial
+    expanded: true
+    disk:
+      - /mnt/ssd_crucial
+
+- resources:
+    label: SSD Primary
+    expanded: true
+    disk:
+      - /mnt/ssd_primary
+
+- glances:
+    label: Pi 5
+    url: http://100.69.22.42:61208   # <-- PAS de /api/4/status ici
+    version: 4                       # obligatoire avec Glances v4
+    cpu: true
+    mem: true
+    cputemp: true
+    uptime: true
+    expanded: true

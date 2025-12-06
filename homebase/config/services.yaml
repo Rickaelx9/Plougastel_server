@@ -1,59 +1,59 @@
 - Media:
     - Jellyfin:
         icon: jellyfin
-        href: http://plougastel:8096
+        href: http://100.69.22.42:8096
         description: Serveur média
     - Komga:
         icon: komga
-        href: http://plougastel:25600
+        href: http://100.69.22.42:25600
         description: Serveur manga
     - Immich:
         icon: immich
-        href: http://plougastel:2283
+        href: http://100.69.22.42:2283
         description: Photos
     - PicFrame:
-        icon: http://plougastel:3000/icons/picframe.png
+        icon: http://100.69.22.42:3000/icons/picframe.png
         href: http://100.103.209.76:5000/
         description: Photo frame
 
 - Productivité:
     - Paperless-ngx:
         icon: paperless-ngx
-        href: http://plougastel:8285
+        href: http://100.69.22.42:8285
         description: Documents
     - Trilium:
         icon: trilium
-        href: http://plougastel:8181
+        href: http://100.69.22.42:8181
         description: Notes
     - File Browser:
         icon: filebrowser
-        href: http://plougastel:8085/
+        href: http://100.69.22.42:8085/
         description: Drive
     - Actual:
-        icon: http://plougastel:3000/icons/actual.png
-        href: https://plougastel.tailb3be33.ts.net:444/
+        icon: http://100.69.22.42:3000/icons/actual.png
+        href: https://100.69.22.42.tailb3be33.ts.net:444/
         description: Finances
 - Téléchargements:
     - qBittorrent:
         icon: qbittorrent
-        href: http://plougastel:9091/
+        href: http://100.69.22.42:9091/
         description: Torrents
     - firefox:
         icon: firefox
-        href: http://plougastel:5800/
+        href: http://100.69.22.42:5800/
         description: Browser VPN
 - Infra:
     - Glances:
         icon: glances
-        href: http://plougastel:61208
+        href: http://100.69.22.42:61208
         description: Système
     - Pironman 5:
-        icon: http://plougastel:3000/icons/pironman5.png
+        icon: http://100.69.22.42:3000/icons/pironman5.png
         href: http://100.69.22.42:34001/
         description: Système
     - Portainer:
         icon: portainer
-        href: https://plougastel:9443/
+        href: https://100.69.22.42:9443/
         description: Système
     - VaultWarden:
         icon: vaultwarden

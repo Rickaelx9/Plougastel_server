@@ -1,6 +1,6 @@
 title: Pi Home
 theme: dark
-language: fr
+language: en
 layout:
   - Media
   - Productivity
@@ -9,4 +9,4 @@ layout:
 providers:
   docker:
     socket: /var/run/docker.sock
-favicon: http://plougastel:3000/icons/homepage.png
+favicon: http://100.69.22.42:3000/images/homepage.png

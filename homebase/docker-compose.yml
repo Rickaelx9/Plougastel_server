@@ -1,7 +1,7 @@
 networks:
   infra:
     name: infra
-    external: true   # create once with: docker network create infra
+    external: true
 
 services:
   homepage:
@@ -15,12 +15,13 @@ services:
     environment:
       - HOMEPAGE_TITLE=Pi Home
       - TZ=Europe/Paris
-      - HOMEPAGE_LANG=fr
-      # Allow the hosts you'll use to access the UI:
-      - HOMEPAGE_ALLOWED_HOSTS=plougastel:3000,plougastel,localhost:3000,127.0.0.1:3000,100.103.209.76:5000
-      # If you also use the Pi's IP, add it too, e.g. 192.168.1.42:3000
-      # - HOMEPAGE_ALLOWED_HOSTS=plougastel:3000,plougastel,192.168.1.42:3000,localhost:3000,127.0.0.1:3000
+      - HOMEPAGE_LANG=en
+      - HOMEPAGE_ALLOWED_HOSTS=*
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./config:/app/config
-      - ./public:/app/public:ro
+      - ./icons:/app/public/icons
+      - /mnt/hdd_backup:/mnt/hdd_backup:ro
+      - /mnt/hdd_primary:/mnt/hdd_primary:ro
+      - /mnt/ssd_crucial:/mnt/ssd_crucial:ro
+      - /mnt/ssd_primary:/mnt/ssd_primary:ro

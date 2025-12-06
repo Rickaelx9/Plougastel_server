@@ -35,3 +35,233 @@
 [2025-11-02T17:27:14.469Z] warn: <service-helpers> Error parsing service "PicFrame" from config. Ensure required fields are present.
 [2025-11-02T17:27:15.997Z] warn: <service-helpers> Error parsing service "PicFrame" from config. Ensure required fields are present.
 [2025-11-02T17:27:19.148Z] warn: <service-helpers> Error parsing service "PicFrame" from config. Ensure required fields are present.
+[2025-12-06T11:33:54.872Z] error: undefined
+[2025-12-06T11:38:14.297Z] error: <httpProxy> Error calling http://plougastel:61208/api/4/cpu...
+[2025-12-06T11:38:14.302Z] error: <httpProxy> [
+  500,
+  [Error: getaddrinfo ENOTFOUND plougastel] {
+    errno: -3008,
+    code: 'ENOTFOUND',
+    syscall: 'getaddrinfo',
+    hostname: 'plougastel'
+  }
+]
+[2025-12-06T11:38:14.303Z] error: <glances> HTTP 500 getting data from glances API. Data: [object Object]
+[2025-12-06T11:38:14.472Z] error: <httpProxy> Error calling http://plougastel:61208/api/4/cpu...
+[2025-12-06T11:38:14.474Z] error: <httpProxy> [
+  500,
+  [Error: getaddrinfo ENOTFOUND plougastel] {
+    errno: -3008,
+    code: 'ENOTFOUND',
+    syscall: 'getaddrinfo',
+    hostname: 'plougastel'
+  }
+]
+[2025-12-06T11:38:14.475Z] error: <glances> HTTP 500 getting data from glances API. Data: [object Object]
+[2025-12-06T11:38:15.570Z] error: <httpProxy> Error calling http://plougastel:61208/api/4/cpu...
+[2025-12-06T11:38:15.572Z] error: <httpProxy> [
+  500,
+  [Error: getaddrinfo ENOTFOUND plougastel] {
+    errno: -3008,
+    code: 'ENOTFOUND',
+    syscall: 'getaddrinfo',
+    hostname: 'plougastel'
+  }
+]
+[2025-12-06T11:38:15.572Z] error: <glances> HTTP 500 getting data from glances API. Data: [object Object]
+[2025-12-06T11:38:16.574Z] error: <httpProxy> Error calling http://plougastel:61208/api/4/cpu...
+[2025-12-06T11:38:16.576Z] error: <httpProxy> [
+  500,
+  [Error: getaddrinfo ENOTFOUND plougastel] {
+    errno: -3008,
+    code: 'ENOTFOUND',
+    syscall: 'getaddrinfo',
+    hostname: 'plougastel'
+  }
+]
+[2025-12-06T11:38:16.576Z] error: <glances> HTTP 500 getting data from glances API. Data: [object Object]
+[2025-12-06T11:38:19.538Z] error: <httpProxy> Error calling http://plougastel:61208/api/4/cpu...
+[2025-12-06T11:38:19.540Z] error: <httpProxy> [
+  500,
+  [Error: getaddrinfo ENOTFOUND plougastel] {
+    errno: -3008,
+    code: 'ENOTFOUND',
+    syscall: 'getaddrinfo',
+    hostname: 'plougastel'
+  }
+]
+[2025-12-06T11:38:19.540Z] error: <glances> HTTP 500 getting data from glances API. Data: [object Object]
+[2025-12-06T11:38:57.309Z] error: undefined
+[2025-12-06T11:42:02.155Z] error: <glances> HTTP 404 getting data from glances API. Data: {"detail":"Not Found"}
+[2025-12-06T11:42:02.508Z] error: <glances> HTTP 404 getting data from glances API. Data: {"detail":"Not Found"}
+[2025-12-06T11:42:03.499Z] error: <glances> HTTP 404 getting data from glances API. Data: {"detail":"Not Found"}
+[2025-12-06T11:42:04.097Z] error: <glances> HTTP 404 getting data from glances API. Data: {"detail":"Not Found"}
+[2025-12-06T11:42:04.635Z] error: <glances> HTTP 404 getting data from glances API. Data: {"detail":"Not Found"}
+[2025-12-06T11:42:07.588Z] error: <glances> HTTP 404 getting data from glances API. Data: {"detail":"Not Found"}
+[2025-12-06T11:42:09.867Z] error: <glances> HTTP 404 getting data from glances API. Data: {"detail":"Not Found"}
+[2025-12-06T11:43:46.670Z] error: <glances> HTTP 404 getting data from glances API. Data: {"detail":"Not Found"}
+[2025-12-06T12:11:26.757Z] error: Host validation failed for: 100.69.22.42:3000. Hint: Set the HOMEPAGE_ALLOWED_HOSTS environment variable to allow requests from this host / port.
+[2025-12-06T12:11:26.852Z] error: Host validation failed for: 100.69.22.42:3000. Hint: Set the HOMEPAGE_ALLOWED_HOSTS environment variable to allow requests from this host / port.
+[2025-12-06T12:11:26.856Z] error: Host validation failed for: 100.69.22.42:3000. Hint: Set the HOMEPAGE_ALLOWED_HOSTS environment variable to allow requests from this host / port.
+[2025-12-06T12:11:26.867Z] error: Host validation failed for: 100.69.22.42:3000. Hint: Set the HOMEPAGE_ALLOWED_HOSTS environment variable to allow requests from this host / port.
+[2025-12-06T12:11:26.871Z] error: Host validation failed for: 100.69.22.42:3000. Hint: Set the HOMEPAGE_ALLOWED_HOSTS environment variable to allow requests from this host / port.
+[2025-12-06T12:11:26.876Z] error: Host validation failed for: 100.69.22.42:3000. Hint: Set the HOMEPAGE_ALLOWED_HOSTS environment variable to allow requests from this host / port.
+[2025-12-06T12:11:26.879Z] error: Host validation failed for: 100.69.22.42:3000. Hint: Set the HOMEPAGE_ALLOWED_HOSTS environment variable to allow requests from this host / port.
+[2025-12-06T12:11:26.894Z] error: Host validation failed for: 100.69.22.42:3000. Hint: Set the HOMEPAGE_ALLOWED_HOSTS environment variable to allow requests from this host / port.
+[2025-12-06T12:11:26.899Z] error: Host validation failed for: 100.69.22.42:3000. Hint: Set the HOMEPAGE_ALLOWED_HOSTS environment variable to allow requests from this host / port.
+[2025-12-06T12:12:13.849Z] error: Host validation failed for: 100.69.22.42:3000. Hint: Set the HOMEPAGE_ALLOWED_HOSTS environment variable to allow requests from this host / port.
+[2025-12-06T12:12:13.903Z] error: Host validation failed for: 100.69.22.42:3000. Hint: Set the HOMEPAGE_ALLOWED_HOSTS environment variable to allow requests from this host / port.
+[2025-12-06T12:12:13.909Z] error: Host validation failed for: 100.69.22.42:3000. Hint: Set the HOMEPAGE_ALLOWED_HOSTS environment variable to allow requests from this host / port.
+[2025-12-06T12:12:13.912Z] error: Host validation failed for: 100.69.22.42:3000. Hint: Set the HOMEPAGE_ALLOWED_HOSTS environment variable to allow requests from this host / port.
+[2025-12-06T12:12:13.916Z] error: Host validation failed for: 100.69.22.42:3000. Hint: Set the HOMEPAGE_ALLOWED_HOSTS environment variable to allow requests from this host / port.
+[2025-12-06T12:12:13.921Z] error: Host validation failed for: 100.69.22.42:3000. Hint: Set the HOMEPAGE_ALLOWED_HOSTS environment variable to allow requests from this host / port.
+[2025-12-06T12:12:13.926Z] error: Host validation failed for: 100.69.22.42:3000. Hint: Set the HOMEPAGE_ALLOWED_HOSTS environment variable to allow requests from this host / port.
+[2025-12-06T12:12:13.932Z] error: Host validation failed for: 100.69.22.42:3000. Hint: Set the HOMEPAGE_ALLOWED_HOSTS environment variable to allow requests from this host / port.
+[2025-12-06T12:12:13.948Z] error: Host validation failed for: 100.69.22.42:3000. Hint: Set the HOMEPAGE_ALLOWED_HOSTS environment variable to allow requests from this host / port.
+[2025-12-06T12:12:13.956Z] error: Host validation failed for: 100.69.22.42:3000. Hint: Set the HOMEPAGE_ALLOWED_HOSTS environment variable to allow requests from this host / port.
+[2025-12-06T12:12:13.971Z] error: Host validation failed for: 100.69.22.42:3000. Hint: Set the HOMEPAGE_ALLOWED_HOSTS environment variable to allow requests from this host / port.
+[2025-12-06T14:10:41.085Z] warn: <resources> Drive not found for target: /mnt/hdd_primary
+[2025-12-06T14:10:41.114Z] warn: <resources> Drive not found for target: /mnt/hdd_backup
+[2025-12-06T14:10:41.136Z] warn: <resources> Drive not found for target: /mnt/ssd_crucial
+[2025-12-06T14:10:41.151Z] warn: <resources> Drive not found for target: /mnt/ssd_primary
+[2025-12-06T14:10:41.350Z] warn: <resources> Drive not found for target: /mnt/hdd_primary
+[2025-12-06T14:10:41.351Z] warn: <resources> Drive not found for target: /mnt/ssd_crucial
+[2025-12-06T14:10:41.352Z] warn: <resources> Drive not found for target: /mnt/ssd_primary
+[2025-12-06T14:10:41.360Z] warn: <resources> Drive not found for target: /mnt/hdd_backup
+[2025-12-06T14:10:42.950Z] warn: <resources> Drive not found for target: /mnt/hdd_primary
+[2025-12-06T14:10:42.951Z] warn: <resources> Drive not found for target: /mnt/ssd_crucial
+[2025-12-06T14:10:42.952Z] warn: <resources> Drive not found for target: /mnt/ssd_primary
+[2025-12-06T14:10:42.955Z] warn: <resources> Drive not found for target: /mnt/hdd_backup
+[2025-12-06T14:10:43.690Z] warn: <resources> Drive not found for target: /mnt/hdd_primary
+[2025-12-06T14:10:43.691Z] warn: <resources> Drive not found for target: /mnt/ssd_crucial
+[2025-12-06T14:10:43.692Z] warn: <resources> Drive not found for target: /mnt/ssd_primary
+[2025-12-06T14:10:43.694Z] warn: <resources> Drive not found for target: /mnt/hdd_backup
+[2025-12-06T14:10:46.691Z] warn: <resources> Drive not found for target: /mnt/hdd_primary
+[2025-12-06T14:10:46.692Z] warn: <resources> Drive not found for target: /mnt/ssd_crucial
+[2025-12-06T14:10:46.697Z] warn: <resources> Drive not found for target: /mnt/hdd_backup
+[2025-12-06T14:10:46.700Z] warn: <resources> Drive not found for target: /mnt/ssd_primary
+[2025-12-06T14:10:50.783Z] warn: <resources> Drive not found for target: /mnt/hdd_backup
+[2025-12-06T14:10:50.791Z] warn: <resources> Drive not found for target: /mnt/hdd_primary
+[2025-12-06T14:10:50.809Z] warn: <resources> Drive not found for target: /mnt/ssd_primary
+[2025-12-06T14:10:50.812Z] warn: <resources> Drive not found for target: /mnt/ssd_crucial
+[2025-12-06T14:10:51.370Z] warn: <resources> Drive not found for target: /mnt/hdd_primary
+[2025-12-06T14:10:51.371Z] warn: <resources> Drive not found for target: /mnt/ssd_crucial
+[2025-12-06T14:10:51.372Z] warn: <resources> Drive not found for target: /mnt/ssd_primary
+[2025-12-06T14:10:51.383Z] warn: <resources> Drive not found for target: /mnt/hdd_backup
+[2025-12-06T14:10:54.355Z] warn: <resources> Drive not found for target: /mnt/ssd_crucial
+[2025-12-06T14:10:54.356Z] warn: <resources> Drive not found for target: /mnt/hdd_backup
+[2025-12-06T14:10:54.359Z] warn: <resources> Drive not found for target: /mnt/hdd_primary
+[2025-12-06T14:10:54.362Z] warn: <resources> Drive not found for target: /mnt/ssd_primary
+[2025-12-06T14:10:57.412Z] warn: <resources> Drive not found for target: /mnt/hdd_backup
+[2025-12-06T14:10:57.414Z] warn: <resources> Drive not found for target: /mnt/hdd_primary
+[2025-12-06T14:10:57.417Z] warn: <resources> Drive not found for target: /mnt/ssd_crucial
+[2025-12-06T14:10:57.419Z] warn: <resources> Drive not found for target: /mnt/ssd_primary
+[2025-12-06T14:11:00.484Z] warn: <resources> Drive not found for target: /mnt/hdd_primary
+[2025-12-06T14:11:00.485Z] warn: <resources> Drive not found for target: /mnt/ssd_crucial
+[2025-12-06T14:11:00.488Z] warn: <resources> Drive not found for target: /mnt/hdd_backup
+[2025-12-06T14:11:00.490Z] warn: <resources> Drive not found for target: /mnt/ssd_primary
+[2025-12-06T14:11:03.546Z] warn: <resources> Drive not found for target: /mnt/ssd_crucial
+[2025-12-06T14:11:03.547Z] warn: <resources> Drive not found for target: /mnt/hdd_backup
+[2025-12-06T14:11:03.550Z] warn: <resources> Drive not found for target: /mnt/hdd_primary
+[2025-12-06T14:11:03.552Z] warn: <resources> Drive not found for target: /mnt/ssd_primary
+[2025-12-06T14:11:06.540Z] warn: <resources> Drive not found for target: /mnt/ssd_primary
+[2025-12-06T14:11:06.545Z] warn: <resources> Drive not found for target: /mnt/hdd_backup
+[2025-12-06T14:11:06.550Z] warn: <resources> Drive not found for target: /mnt/ssd_crucial
+[2025-12-06T14:11:06.551Z] warn: <resources> Drive not found for target: /mnt/hdd_primary
+[2025-12-06T14:11:53.982Z] warn: <resources> Drive not found for target: /mnt/hdd_backup
+[2025-12-06T14:11:54.012Z] warn: <resources> Drive not found for target: /mnt/hdd_primary
+[2025-12-06T14:11:54.026Z] warn: <resources> Drive not found for target: /mnt/ssd_crucial
+[2025-12-06T14:11:54.038Z] warn: <resources> Drive not found for target: /mnt/ssd_primary
+[2025-12-06T14:11:55.874Z] warn: <resources> Drive not found for target: /mnt/hdd_primary
+[2025-12-06T14:11:55.875Z] warn: <resources> Drive not found for target: /mnt/ssd_crucial
+[2025-12-06T14:11:55.879Z] warn: <resources> Drive not found for target: /mnt/ssd_primary
+[2025-12-06T14:11:55.889Z] warn: <resources> Drive not found for target: /mnt/hdd_backup
+[2025-12-06T14:11:58.864Z] warn: <resources> Drive not found for target: /mnt/hdd_primary
+[2025-12-06T14:11:58.865Z] warn: <resources> Drive not found for target: /mnt/ssd_crucial
+[2025-12-06T14:11:58.868Z] warn: <resources> Drive not found for target: /mnt/hdd_backup
+[2025-12-06T14:11:58.872Z] warn: <resources> Drive not found for target: /mnt/ssd_primary
+[2025-12-06T14:12:01.952Z] warn: <resources> Drive not found for target: /mnt/ssd_crucial
+[2025-12-06T14:12:01.953Z] warn: <resources> Drive not found for target: /mnt/hdd_backup
+[2025-12-06T14:12:01.954Z] warn: <resources> Drive not found for target: /mnt/ssd_primary
+[2025-12-06T14:12:01.956Z] warn: <resources> Drive not found for target: /mnt/hdd_primary
+[2025-12-06T14:12:05.009Z] warn: <resources> Drive not found for target: /mnt/hdd_backup
+[2025-12-06T14:12:05.010Z] warn: <resources> Drive not found for target: /mnt/ssd_primary
+[2025-12-06T14:12:05.013Z] warn: <resources> Drive not found for target: /mnt/ssd_crucial
+[2025-12-06T14:12:05.014Z] warn: <resources> Drive not found for target: /mnt/hdd_primary
+[2025-12-06T14:12:08.063Z] warn: <resources> Drive not found for target: /mnt/ssd_primary
+[2025-12-06T14:12:08.064Z] warn: <resources> Drive not found for target: /mnt/ssd_crucial
+[2025-12-06T14:12:08.067Z] warn: <resources> Drive not found for target: /mnt/hdd_backup
+[2025-12-06T14:12:08.068Z] warn: <resources> Drive not found for target: /mnt/hdd_primary
+[2025-12-06T14:12:11.116Z] warn: <resources> Drive not found for target: /mnt/ssd_crucial
+[2025-12-06T14:12:11.117Z] warn: <resources> Drive not found for target: /mnt/hdd_backup
+[2025-12-06T14:12:11.120Z] warn: <resources> Drive not found for target: /mnt/ssd_primary
+[2025-12-06T14:12:11.122Z] warn: <resources> Drive not found for target: /mnt/hdd_primary
+[2025-12-06T14:12:14.177Z] warn: <resources> Drive not found for target: /mnt/hdd_backup
+[2025-12-06T14:12:14.178Z] warn: <resources> Drive not found for target: /mnt/ssd_primary
+[2025-12-06T14:12:14.181Z] warn: <resources> Drive not found for target: /mnt/ssd_crucial
+[2025-12-06T14:12:14.182Z] warn: <resources> Drive not found for target: /mnt/hdd_primary
+[2025-12-06T14:12:17.229Z] warn: <resources> Drive not found for target: /mnt/ssd_primary
+[2025-12-06T14:12:17.230Z] warn: <resources> Drive not found for target: /mnt/ssd_crucial
+[2025-12-06T14:12:17.233Z] warn: <resources> Drive not found for target: /mnt/hdd_backup
+[2025-12-06T14:12:17.235Z] warn: <resources> Drive not found for target: /mnt/hdd_primary
+[2025-12-06T14:12:20.300Z] warn: <resources> Drive not found for target: /mnt/ssd_crucial
+[2025-12-06T14:12:20.301Z] warn: <resources> Drive not found for target: /mnt/hdd_backup
+[2025-12-06T14:12:20.306Z] warn: <resources> Drive not found for target: /mnt/ssd_primary
+[2025-12-06T14:12:20.307Z] warn: <resources> Drive not found for target: /mnt/hdd_primary
+[2025-12-06T14:12:23.359Z] warn: <resources> Drive not found for target: /mnt/hdd_backup
+[2025-12-06T14:12:23.360Z] warn: <resources> Drive not found for target: /mnt/ssd_primary
+[2025-12-06T14:12:23.364Z] warn: <resources> Drive not found for target: /mnt/ssd_crucial
+[2025-12-06T14:12:23.365Z] warn: <resources> Drive not found for target: /mnt/hdd_primary
+[2025-12-06T14:12:26.429Z] warn: <resources> Drive not found for target: /mnt/ssd_primary
+[2025-12-06T14:12:26.431Z] warn: <resources> Drive not found for target: /mnt/ssd_crucial
+[2025-12-06T14:12:26.435Z] warn: <resources> Drive not found for target: /mnt/hdd_backup
+[2025-12-06T14:12:26.437Z] warn: <resources> Drive not found for target: /mnt/hdd_primary
+[2025-12-06T14:12:29.484Z] warn: <resources> Drive not found for target: /mnt/ssd_crucial
+[2025-12-06T14:12:29.485Z] warn: <resources> Drive not found for target: /mnt/hdd_backup
+[2025-12-06T14:12:29.488Z] warn: <resources> Drive not found for target: /mnt/ssd_primary
+[2025-12-06T14:12:29.489Z] warn: <resources> Drive not found for target: /mnt/hdd_primary
+[2025-12-06T14:15:54.078Z] warn: <resources> Drive not found for target: [object Object]
+[2025-12-06T14:15:54.488Z] warn: <resources> Drive not found for target: [object Object]
+[2025-12-06T14:15:55.584Z] warn: <resources> Drive not found for target: [object Object]
+[2025-12-06T14:16:26.671Z] warn: <resources> Drive not found for target: [object Object]
+[2025-12-06T14:19:19.499Z] error: undefined
+[2025-12-06T14:21:32.803Z] warn: <resources> Drive not found for target: /mnt/ssd_primary
+[2025-12-06T14:21:32.807Z] error: undefined
+[2025-12-06T14:21:33.254Z] warn: <resources> Drive not found for target: /mnt/ssd_primary
+[2025-12-06T14:21:36.249Z] warn: <resources> Drive not found for target: /mnt/ssd_primary
+[2025-12-06T14:21:39.323Z] warn: <resources> Drive not found for target: /mnt/ssd_primary
+[2025-12-06T14:21:41.714Z] warn: <resources> Drive not found for target: /mnt/ssd_primary
+[2025-12-06T14:22:02.759Z] warn: <resources> Drive not found for target: /mnt/ssd_primary
+[2025-12-06T14:22:02.961Z] warn: <resources> Drive not found for target: /mnt/ssd_primary
+[2025-12-06T14:22:03.429Z] warn: <resources> Drive not found for target: /mnt/ssd_primary
+[2025-12-06T14:22:04.846Z] warn: <resources> Drive not found for target: /mnt/ssd_primary
+[2025-12-06T14:22:07.857Z] warn: <resources> Drive not found for target: /mnt/ssd_primary
+[2025-12-06T14:22:10.932Z] warn: <resources> Drive not found for target: /mnt/ssd_primary
+[2025-12-06T14:22:26.885Z] warn: <resources> Drive not found for target: /mnt/ssd_primary
+[2025-12-06T14:22:26.889Z] error: undefined
+[2025-12-06T14:22:27.074Z] warn: <resources> Drive not found for target: /mnt/ssd_primary
+[2025-12-06T14:22:28.309Z] warn: <resources> Drive not found for target: /mnt/ssd_primary
+[2025-12-06T14:22:31.303Z] warn: <resources> Drive not found for target: /mnt/ssd_primary
+[2025-12-06T14:22:34.367Z] warn: <resources> Drive not found for target: /mnt/ssd_primary
+[2025-12-06T14:22:37.308Z] warn: <resources> Drive not found for target: /mnt/ssd_primary
+[2025-12-06T14:22:40.293Z] warn: <resources> Drive not found for target: /mnt/ssd_primary
+[2025-12-06T14:22:43.353Z] warn: <resources> Drive not found for target: /mnt/ssd_primary
+[2025-12-06T14:22:46.422Z] warn: <resources> Drive not found for target: /mnt/ssd_primary
+[2025-12-06T14:22:49.478Z] warn: <resources> Drive not found for target: /mnt/ssd_primary
+[2025-12-06T14:22:52.535Z] warn: <resources> Drive not found for target: /mnt/ssd_primary
+[2025-12-06T14:22:55.613Z] warn: <resources> Drive not found for target: /mnt/ssd_primary
+[2025-12-06T14:22:58.673Z] warn: <resources> Drive not found for target: /mnt/ssd_primary
+[2025-12-06T14:23:01.740Z] warn: <resources> Drive not found for target: /mnt/ssd_primary
+[2025-12-06T14:29:10.798Z] warn: <resources> Drive not found for target: /mnt/ssd_primary
+[2025-12-06T14:29:10.855Z] error: undefined
+[2025-12-06T14:31:08.785Z] error: undefined
+[2025-12-06T14:31:18.804Z] error: undefined
+[2025-12-06T14:31:26.747Z] error: undefined
+[2025-12-06T14:32:57.007Z] error: undefined
+[2025-12-06T14:32:57.047Z] warn: <resources> Drive not found for target: [object Object]
+[2025-12-06T14:32:57.210Z] warn: <resources> Drive not found for target: [object Object]
+[2025-12-06T14:32:59.060Z] warn: <resources> Drive not found for target: [object Object]
+[2025-12-06T14:33:02.032Z] warn: <resources> Drive not found for target: [object Object]
+[2025-12-06T14:41:13.335Z] warn: <resources> Drive not found for target: /mnt/ssd_primary
+[2025-12-06T14:41:13.844Z] warn: <resources> Drive not found for target: /mnt/ssd_primary
+[2025-12-06T14:41:16.827Z] warn: <resources> Drive not found for target: /mnt/ssd_primary
