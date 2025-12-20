@@ -52,3 +52,6 @@ komga/tasks.sqlite-wal
 .vim/
 .msmtp.log
 .msmtprc
+.streamlit/
+budget-prorata/historique_budget.csv
+budget-prorata/venv/

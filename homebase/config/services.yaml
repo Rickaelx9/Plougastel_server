@@ -17,6 +17,10 @@
         description: Photo frame
 
 - Productivité:
+    - Budget Vacances:
+        icon: google-sheets
+        href: http://100.69.22.42:8501
+        description: Prorata & Dépenses
     - Paperless-ngx:
         icon: paperless-ngx
         href: http://100.69.22.42:8285
@@ -31,7 +35,7 @@
         description: Drive
     - Actual:
         icon: http://100.69.22.42:3000/icons/actual.png
-        href: https://100.69.22.42.tailb3be33.ts.net:444/
+        href: https://plougastel.tailb3be33.ts.net:444/
         description: Finances
 - Téléchargements:
     - qBittorrent:
