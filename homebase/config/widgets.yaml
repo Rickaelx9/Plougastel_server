@@ -15,30 +15,6 @@
     units: metric       # °C
     cache: 5            # minutes de cache
 
-- resources:
-    label: HDD Backup
-    expanded: true
-    disk:
-      - /mnt/hdd_backup
-
-- resources:
-    label: HDD Primary
-    expanded: true
-    disk:
-      - /mnt/hdd_primary
-
-- resources:
-    label: SSD Crucial
-    expanded: true
-    disk:
-      - /mnt/ssd_crucial
-
-- resources:
-    label: SSD Primary
-    expanded: true
-    disk:
-      - /mnt/ssd_primary
-
 - glances:
     label: Pi 5
     url: http://100.69.22.42:61208   # <-- PAS de /api/4/status ici
