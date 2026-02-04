@@ -8,22 +8,26 @@ services:
       - NET_ADMIN
     devices:
       - /dev/net/tun:/dev/net/tun
+    sysctls:
+      - net.ipv6.conf.all.disable_ipv6=1
     env_file:
       - /home/pi/qbittorrent/.env
     environment:
       - VPN_SERVICE_PROVIDER=nordvpn
       - VPN_TYPE=wireguard
-      # Paste the key you obtained in step 1:
       - WIREGUARD_PRIVATE_KEY=${WIREGUARD_PRIVATE_KEY}
-      # Force a French exit:
       - SERVER_COUNTRIES=France
-      # Timezone
       - TZ=Europe/Paris
-      - DOT_PROVIDERS=cloudflare,google
+      # CHANGE 1: Turn off DoT (High overhead) and use standard DNS
+      - DOT=off
+      - DNS_ADDRESS=1.1.1.1
+      # CHANGE 2: Force MTU on the interface level, not just WireGuard
+      - VPN_INTERFACE_MTU=1280
+      - WIREGUARD_MTU=1280
       - BLOCK_MALICIOUS=off
-      # (optional) also ensure others are off:
       - BLOCK_SURVEILLANCE=off
       - BLOCK_ADS=off
+
 
     volumes:
       - /home/pi/qbittorrent/gluetun:/gluetun
