@@ -1,0 +1,17 @@
+services:
+  kavita:
+    image: jvmilazz0/kavita:latest
+    container_name: kavita
+    volumes:
+      # Maps your local folder for Kavita's database and cache
+      - ./config:/kavita/config
+      # Maps your SSD library
+      - /mnt/ssd_crucial/media/livre:/data
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Paris
+    ports:
+      - "5001:5000"
+    restart: unless-stopped
+
