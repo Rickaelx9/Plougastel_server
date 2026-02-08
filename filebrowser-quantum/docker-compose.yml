@@ -1,0 +1,36 @@
+services:
+  webdav-quantum:
+      image: derkades/webdav
+      container_name: webdav-quantum-public
+      volumes:
+          - /mnt/ssd_crucial/media/livre/:/data
+      ports:
+          - "8195:80"
+      environment:
+          USERNAME: admin
+          PASSWORD: admin
+      restart: unless-stopped
+
+  filebrowser-quantum-public:
+    image: gtstef/filebrowser:latest
+    container_name: filebrowser-quantum-public
+    volumes:
+      - /mnt/ssd_primary/public_share:/srv  # Your data
+      - /mnt/hdd_primary/media:/srv/hdd_primary/media
+      - /mnt/ssd_crucial/media:/srv/ssd_crucial/media
+      - ./fb-public-quantum-db:/database.db
+      - ./settings-public.json:/settings.json
+    ports:
+      - "8095:80"
+    restart: unless-stopped
+
+  filebrowser-quantum-secret:
+    image: gtstef/filebrowser:latest
+    container_name: filebrowser-quantum-secret
+    volumes:
+      - /mnt/hdd_primary/secret:/srv  # Your data
+      - ./fb-secret-quantum-db:/database.db
+      - ./settings-secret.json:/settings.json
+    ports:
+      - "8097:80"
+    restart: unless-stopped
