@@ -20,7 +20,7 @@ services:
       - /mnt/hdd_primary/media:/srv/hdd_primary/media
       - /mnt/ssd_crucial/media:/srv/ssd_crucial/media
       - ./fb-public-quantum-db:/home/filebrowser/data
-      - ./config/config-public.yaml:/config.yaml
+      - ./config/config-public.yaml:/home/filebrowser/config.yaml
     environment:
       - FB_NOAUTH=true    # <--- Add this line
     ports:

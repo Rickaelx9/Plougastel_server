@@ -1,7 +1,8 @@
-server:
-  database: /home/filebrowser/data/database.db
-  root: /srv
-  # Add this section to disable login
 auth:
   methods:
-    noauth: true  # disables all authentication methods
+    noauth: true
+
+server:
+  database: /home/filebrowser/data/database.db
+  sources:
+    - path: /srv
