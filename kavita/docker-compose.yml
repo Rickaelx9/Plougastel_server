@@ -2,6 +2,7 @@ services:
   kavita:
     image: jvmilazz0/kavita:latest
     container_name: kavita
+    hostname: kavita
     volumes:
       # Maps your local folder for Kavita's database and cache
       - ./config:/kavita/config
@@ -14,4 +15,3 @@ services:
     ports:
       - "5001:5000"
     restart: unless-stopped
-

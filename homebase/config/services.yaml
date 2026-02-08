@@ -5,7 +5,7 @@
         description: Serveur média
     - Kavita:
         icon: https://raw.githubusercontent.com/Kareadita/Wiki-Nextra/main/public/favicon.ico
-        href: http://100.69.22.42:5000
+        href: http://100.69.22.42:5000/login?apiKey=M0dnGj1I7pgSEeoC2HbPcc7RcD9LWqvS
         description: Serveur manga
     - Immich:
         icon: immich

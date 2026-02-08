@@ -31,7 +31,7 @@ cleanup() {
         echo -e "Le backup 'Shares' a échoué.\nCode: $exit_code\nDate: $(date)" | mail -s "🚨 ÉCHEC BACKUP : Shares" "$RECIPIENT_EMAIL"
 
         echo "Script failed. Ensuring container is running..."
-        docker compose --project-directory "$FILEBROWSER_PROJECT_PATH" start filebrowser-public || echo "Could not start container."
+        docker compose --project-directory "$FILEBROWSER_PROJECT_PATH" start filebrowser-quantum-public || echo "Could not start container."
     fi
 
     # Always remove the temporary database copy
@@ -55,13 +55,13 @@ fi
 # --- SAFELY COPY THE DATABASE ---
 echo "--> Preparing database for backup..."
 echo "Stopping FileBrowser container to ensure data consistency..."
-docker compose --project-directory "$FILEBROWSER_PROJECT_PATH" stop filebrowser-public
+docker compose --project-directory "$FILEBROWSER_PROJECT_PATH" stop filebrowser-quantum-public
 
 echo "Copying database file to temporary location..."
 cp "$DB_SOURCE_FILE" "$DB_BACKUP_FILE"
 
 echo "Restarting FileBrowser container... (Downtime is over)"
-docker compose --project-directory "$FILEBROWSER_PROJECT_PATH" start filebrowser-public
+docker compose --project-directory "$FILEBROWSER_PROJECT_PATH" start filebrowser-quantum-public
 echo "✅ Database is prepared and service is back online."
 
 # --- CREATE LOCAL BACKUPS IN PARALLEL ---

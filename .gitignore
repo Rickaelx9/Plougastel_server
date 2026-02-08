@@ -58,3 +58,5 @@ budget-prorata/venv/
 homebase/config/logs
 immich/model-cache/
 kavita/config/
+filebrowser-quantum/fb-public-quantum-db/
+filebrowser-quantum/fb-secret-quantum-db/
