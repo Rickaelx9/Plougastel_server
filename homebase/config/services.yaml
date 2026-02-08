@@ -61,5 +61,5 @@
         description: Password manager
     - Cockpit:
         icon: https://raw.githubusercontent.com/cockpit-project/cockpit/main/src/branding/default/logo.svg
-        href: https://100.69.22.42:9090
+        href: https://plougastel.tailb3be33.ts.net:9090/
         description: Admin & Terminal
