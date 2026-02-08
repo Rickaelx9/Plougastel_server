@@ -30,8 +30,8 @@
         href: http://100.69.22.42:8181
         description: Notes
     - File Browser:
-        icon: filebrowser
-        href: http://100.69.22.42:8085/
+        icon: https://filebrowserquantum.com/logo.svg
+        href: http://100.69.22.42:8095/
         description: Drive
     - Actual:
         icon: http://100.69.22.42:3000/icons/actual.png

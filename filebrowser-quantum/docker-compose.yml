@@ -5,7 +5,7 @@ services:
       volumes:
           - /mnt/ssd_crucial/media/livre/:/data
       ports:
-          - "8195:80"
+          - "8185:80"
       environment:
           USERNAME: admin
           PASSWORD: admin
