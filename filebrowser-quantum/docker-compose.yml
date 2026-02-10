@@ -26,15 +26,3 @@ services:
     ports:
       - "8095:80"
     restart: unless-stopped
-
-  filebrowser-quantum-secret:
-    image: gtstef/filebrowser:latest
-    container_name: filebrowser-quantum-secret
-    user: "1000:1000"
-    volumes:
-      - /mnt/hdd_primary/secret:/srv
-      - ./fb-secret-quantum-db:/home/filebrowser/data
-      - ./config/config-secret.yaml:/config.yaml
-    ports:
-      - "8097:80"
-    restart: unless-stopped
