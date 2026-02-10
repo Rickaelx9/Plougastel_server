@@ -9,3 +9,8 @@ services:
       - ./data:/data
     ports:
       - "127.0.0.1:5006:5006"
+# --------------------------------------------------------------------------
+# WARNING: Do not point Tailscale directly to port 5006!
+# Actual Budget requires special HTTP headers (COOP/COEP) for SharedArrayBuffer.
+# Tailscale cannot provide these. You MUST go through Caddy (Port 8002).
+# --------------------------------------------------------------------------

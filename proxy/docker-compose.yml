@@ -1,3 +1,15 @@
+# ==============================================================================
+# TAILSCALE CONFIGURATION (The "Daisy Chain")
+# ==============================================================================
+# We do not expose apps directly to Tailscale. We use Caddy as a "Middleman".
+#
+# 1. Main URL (Vaultwarden) -> Tailscale (443) -> Caddy (8001) -> Container (11001)
+#    Command: tailscale serve --bg --https 443 http://127.0.0.1:8001
+#
+# 2. Actual Budget -> Tailscale (444) -> Caddy (8002) -> Container (5006)
+#    Command: tailscale serve --bg --https 444 http://127.0.0.1:8002
+# ==============================================================================
+
 services:
   caddy:
     image: caddy:2
