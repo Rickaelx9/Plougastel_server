@@ -1,14 +1,18 @@
 services:
   webdav-quantum:
-      image: derkades/webdav
+      image: ugeek/webdav:arm
       container_name: webdav-quantum-public
       volumes:
-          - /mnt/ssd_crucial/media/livre/:/data
+          # Note: internal path changes from /data to /media for this image
+          - /mnt/ssd_crucial/media/livre/:/media
       ports:
           - "8185:80"
       environment:
-          USERNAME: admin
-          PASSWORD: admin
+          - USERNAME=admin
+          - PASSWORD=admin
+          - UID=1000   # Match your Filebrowser user
+          - GID=1000   # Match your Filebrowser group
+          - TZ=Europe/Paris # Optional: Set your timezone
       restart: unless-stopped
 
   filebrowser-quantum-public:
@@ -22,7 +26,7 @@ services:
       - ./fb-public-quantum-db:/home/filebrowser/data
       - ./config/config-public.yaml:/home/filebrowser/config.yaml
     environment:
-      - FB_NOAUTH=true    # <--- Add this line
+      - FB_NOAUTH=true
     ports:
       - "8095:80"
     restart: unless-stopped
