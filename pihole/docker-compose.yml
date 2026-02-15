@@ -1,0 +1,20 @@
+services:
+  pihole:
+    container_name: pihole
+    image: pihole/pihole:latest
+    hostname: pihole-docker
+    ports:
+      - "53:53/tcp"     # DNS traffic
+      - "53:53/udp"     # DNS traffic
+      - "8685:80"       # Web Interface (http://<IP>:8080/admin)
+    environment:
+      - TZ=Europe/Paris
+      - WEBPASSWORD=   # <--- Leave this empty to disable the password
+
+    volumes:
+      - './etc-pihole:/etc/pihole'
+      - './etc-dnsmasq.d:/etc/dnsmasq.d'
+    # Recommended capability additions for Pi-hole functionality
+    cap_add:
+      - NET_ADMIN
+    restart: unless-stopped
