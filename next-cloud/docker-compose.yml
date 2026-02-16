@@ -1,0 +1,24 @@
+services:
+  nextcloud-aio-mastercontainer:
+    image: nextcloud/all-in-one:latest
+    container_name: nextcloud-aio-mastercontainer
+    restart: always
+    init: true
+    environment:
+      # Port for the internal Nextcloud Apache (which Caddy will talk to)
+      - APACHE_PORT=11000
+      - APACHE_IP_BINDING=127.0.0.1
+      # Essential for Tailscale setups
+      - SKIP_DOMAIN_VALIDATION=true
+      - TZ=Europe/Paris # Adjust to your timezone
+      - NEXTCLOUD_MOUNT=/mnt/
+    volumes:
+      - nextcloud_aio_mastercontainer:/mnt/docker-aio-config
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    ports:
+      # Port for the Setup Wizard
+      - "8080:8080"
+
+volumes:
+  nextcloud_aio_mastercontainer:
+    name: nextcloud_aio_mastercontainer
