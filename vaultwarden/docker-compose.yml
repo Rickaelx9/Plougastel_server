@@ -10,7 +10,7 @@ services:
     volumes:
       - ./vw-data:/data
     ports:
-      - "127.0.0.1:11001:80"
+      - "127.0.0.1:11002:80"
 
 # --------------------------------------------------------------------------
 # NOTE: Accessed via Caddy on port 8001 (for Gzip compression).
