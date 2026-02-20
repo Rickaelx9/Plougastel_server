@@ -9,7 +9,7 @@ services:
       - "8685:80"       # Web Interface (http://<IP>:8080/admin)
     environment:
       - TZ=Europe/Paris
-      - WEBPASSWORD=   # <--- Leave this empty to disable the password
+      - FTLCONF_webserver_api_password= 
 
     volumes:
       - './etc-pihole:/etc/pihole'
