@@ -11,10 +11,6 @@
         icon: immich
         href: http://100.69.22.42:2283
         description: Photos
-    - PicFrame:
-        icon: http://100.69.22.42:3000/icons/picframe.png
-        href: http://100.103.209.76:5000/
-        description: Photo frame
 
 - Productivité:
     - Budget Vacances:
@@ -41,6 +37,11 @@
         icon: https://nextcloud.com/c/uploads/2023/02/logo_nextcloud_white.svg
         href: https://plougastel.tailb3be33.ts.net/
         description: Calendar, tasks manager
+    - Stirling-pdf:
+        icon: https://raw.githubusercontent.com/Stirling-Tools/Stirling-PDF/main/docs/stirling.png
+        href: http://100.69.22.42:9254
+        description: PDF editing platform
+
 - Téléchargements:
     - qBittorrent:
         icon: qbittorrent
@@ -50,6 +51,7 @@
         icon: firefox
         href: http://100.69.22.42:5800/
         description: Browser VPN
+
 - Infra:
     - Pironman 5:
         icon: http://100.69.22.42:3000/icons/pironman5.png
