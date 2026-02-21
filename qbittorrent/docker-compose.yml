@@ -18,28 +18,20 @@ services:
       - WIREGUARD_PRIVATE_KEY=${WIREGUARD_PRIVATE_KEY}
       - SERVER_COUNTRIES=France
       - TZ=Europe/Paris
-      # CHANGE 1: Turn off DoT (High overhead) and use standard DNS
       - DOT=off
       - DNS_ADDRESS=1.1.1.1
-      # CHANGE 2: Force MTU on the interface level, not just WireGuard
       - VPN_INTERFACE_MTU=1280
       - WIREGUARD_MTU=1280
       - BLOCK_MALICIOUS=off
       - BLOCK_SURVEILLANCE=off
       - BLOCK_ADS=off
-
-
     volumes:
       - /home/pi/qbittorrent/gluetun:/gluetun
-
-    # Publish qBittorrent ports here (since qbit shares this network)
     ports:
       - 9091:9091           # qBittorrent
       - 6881:6881
       - 6881:6881/udp
       - 5800:5800           # Firefox noVNC UI
-
-
     restart: unless-stopped
 
   firefox:
@@ -57,11 +49,23 @@ services:
       - GROUP_ID=1000
       - DARK_MODE=1
       - ENABLE_CJK_FONT=0
+      # CORRECTION : On retire VNC_LISTENING_PORT qui créait le conflit
+      # On garde la résolution basse pour économiser la RAM
+      - DISPLAY_WIDTH=1280
+      - DISPLAY_HEIGHT=720
+      # On s'assure que l'interface web écoute bien sur 5800
+      - WEB_LISTENING_PORT=5800
     volumes:
       - /home/pi/qbittorrent/firefox:/config
-      - /home/pi/qbittorrent/qbit_watch:/config/downloads   # <— new: Firefox saves here
+      - /home/pi/qbittorrent/qbit_watch:/config/downloads
       - /dev/shm:/dev/shm
-    shm_size: "1gb"
+    # On garde l'optimisation RAM
+    shm_size: "512m"
+    deploy:
+      resources:
+        limits:
+          memory: 1024M
+          cpus: '1.50'
     restart: unless-stopped
 
   qbittorrent:
@@ -79,11 +83,16 @@ services:
       - TZ=Europe/Paris
       - WEBUI_PORT=9091
       - UMASK=002
+      # OPTIMIZATION 3: Limit qBittorrent internal cache
     volumes:
       - /home/pi/qbittorrent/config:/config
       - /mnt/hdd_primary/media/film:/downloads/film
       - /mnt/hdd_primary/media/serie:/downloads/serie
       - /mnt/ssd_primary/public_share/torrent:/downloads/torrent
       - /mnt/ssd_crucial/media:/downloads/media
-      - /home/pi/qbittorrent/qbit_watch:/watch              # <— new: qBittorrent watch
+      - /home/pi/qbittorrent/qbit_watch:/watch
+    deploy:
+      resources:
+        limits:
+          memory: 512M    # qBittorrent shouldn't need more than this
     restart: unless-stopped
