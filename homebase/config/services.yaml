@@ -63,7 +63,7 @@
         description: Système
     - VaultWarden:
         icon: vaultwarden
-        href: https://plougastel.tailb3be33.ts.net:8001/
+        href: https://plougastel.tailb3be33.ts.net:9001/
         description: Password manager
     - Cockpit:
         icon: https://raw.githubusercontent.com/cockpit-project/cockpit/main/src/branding/default/logo.svg
