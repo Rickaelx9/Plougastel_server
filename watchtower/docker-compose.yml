@@ -3,16 +3,18 @@ services:
     image: containrrr/watchtower
     container_name: watchtower
     restart: unless-stopped
+    ports:
+      # Exposes the API on port 8080
+      - 9234:8080
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
-      # Nettoie les vieilles images après la mise à jour pour gagner de la place
       - WATCHTOWER_CLEANUP=true
-      
-      # Format Cron : Secondes Minutes Heures JourMois Mois JourSemaine
-      # Ici : 0 sec, 0 min, 6 h, tous les jours
       - WATCHTOWER_SCHEDULE=0 0 6 * * *
-      
-      # Important pour que ce soit 6h heure française (et pas UTC)
       - TZ=Europe/Paris
 
+      # --- NEW CONFIGURATION FOR HOMEPAGE ---
+      # Enables the metrics endpoint required by Homepage
+      - WATCHTOWER_HTTP_API_METRICS=true
+      # Define your own secret key (replace 'mysecrettoken' with whatever you want)
+      - WATCHTOWER_HTTP_API_TOKEN=mysecrettoken
