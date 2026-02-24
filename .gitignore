@@ -25,7 +25,6 @@ backup_log/
 .vaultwarden_backup.env
 vaultwarden/vw-data/
 webdav_file_browser/filebrowser-db/
-paperless-*
 .paperless_backup.env
 jellyfin/cache/
 jellyfin/config/
@@ -62,3 +61,7 @@ filebrowser-quantum/fb-public-quantum-db/
 filebrowser-quantum/fb-secret-quantum-db/
 pihole/etc-pihole/
 stirling-pdf/stirling-data/
+paperless-ngx/data/
+paperless-ngx/media/
+paperless-ngx/redisdata/
+paperless-ngx/pgdata/
