@@ -65,3 +65,4 @@ paperless-ngx/data/
 paperless-ngx/media/
 paperless-ngx/redisdata/
 paperless-ngx/pgdata/
+radicale/data/
