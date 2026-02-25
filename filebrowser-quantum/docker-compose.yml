@@ -27,6 +27,7 @@ services:
       - ./config/config-public.yaml:/home/filebrowser/config.yaml
     environment:
       - FB_NOAUTH=true
+      - FILEBROWSER_CONFIG=/home/filebrowser/config.yaml
     ports:
       - "8095:80"
     restart: unless-stopped
