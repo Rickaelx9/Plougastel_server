@@ -80,3 +80,9 @@
             type: watchtower
             url: http://100.69.22.42:9234
             key: mysecrettoken
+    - Scrutiny:
+        icon: scrutiny
+        href: http://100.69.22.42:9284
+        widget:
+          type: scrutiny
+          url: http://100.69.22.42:9284

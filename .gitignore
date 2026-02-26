@@ -71,3 +71,5 @@ ntfy/ntfy/
 vikunja/files/
 vikunja/db/
 vikunja/db_backup/db/
+scrutiny/config/
+scrutiny/influxdb/

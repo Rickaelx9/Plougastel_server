@@ -1,0 +1,17 @@
+services:
+  scrutiny:
+    image: ghcr.io/analogj/scrutiny:master-omnibus
+    container_name: scrutiny
+    privileged: true             # Required for deep hardware access on Pi
+    cap_add:
+      - SYS_RAWIO                # Allows raw disk IO
+      - SYS_ADMIN                # Required for some NVMe/USB bridges
+    ports:
+      - "9284:8080"              # Web UI
+      - "9285:8086"              # InfluxDB
+    volumes:
+      - /run/udev:/run/udev:ro   # Helps with device detection
+      - ./config:/opt/scrutiny/config
+      - ./influxdb:/opt/scrutiny/influxdb
+      - /dev:/dev                # Maps all drives automatically
+    restart: unless-stopped

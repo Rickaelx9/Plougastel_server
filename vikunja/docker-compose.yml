@@ -27,7 +27,7 @@ services:
       VIKUNJA_MAILER_FROMEMAIL: vikunja@gmail.com
       VIKUNJA_MAILER_AUTHTYPE: login
       VIKUNJA_MAILER_FORCESSL: "false"
-
+      HOME: /tmp
     ports:
       - 3456:3456
     volumes:
