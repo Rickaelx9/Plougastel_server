@@ -1,6 +1,6 @@
 services:
   vikunja:
-    image: vikunja/vikunja
+    image: vikunja/vikunja:latest
     environment:
       VIKUNJA_SERVICE_PUBLICURL: http://100.69.22.42:3456
       VIKUNJA_DATABASE_HOST: db
@@ -10,16 +10,30 @@ services:
       VIKUNJA_DATABASE_DATABASE: vikunja
       VIKUNJA_SERVICE_JWTSECRET: admin
       VIKUNJA_SERVICE_TIMEZONE: Europe/Paris
+      # --- SECURITY: DISABLE NEW REGISTRATIONS ---
+      # Set this to "false" so no one else can create an account.
+      # You must have your account created before setting this!
+      VIKUNJA_SERVICE_ENABLEREGISTRATION: "false"
 
-      # ✅ Connect to Ntfy
-      VIKUNJA_DEFAULTSETTINGS_NOTIFICATIONS_NTFY_ENABLED: true
-      VIKUNJA_DEFAULTSETTINGS_NOTIFICATIONS_NTFY_URL: http://100.69.22.42:3457
-      VIKUNJA_DEFAULTSETTINGS_NOTIFICATIONS_NTFY_TOPIC: vikunja
+      VIKUNJA_SERVICE_JWTTTL: 31536000
+
+      # GMAIL SETTINGS
+      VIKUNJA_MAILER_ENABLED: "true"
+      VIKUNJA_MAILER_HOST: smtp.gmail.com
+      VIKUNJA_MAILER_PORT: 587
+      VIKUNJA_MAILER_SKIPTLSVERIFY: "false"
+      VIKUNJA_MAILER_USERNAME: mickael.ramilison@gmail.com
+      VIKUNJA_MAILER_PASSWORD: xctd swnj pwco hefi
+      VIKUNJA_MAILER_FROMEMAIL: vikunja@gmail.com
+      VIKUNJA_MAILER_AUTHTYPE: login
+      VIKUNJA_MAILER_FORCESSL: "false"
 
     ports:
       - 3456:3456
     volumes:
       - ./files:/app/vikunja/files
+    tmpfs:
+      - /tmp
     depends_on:
       db:
         condition: service_healthy
