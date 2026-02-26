@@ -33,10 +33,10 @@
         icon: http://100.69.22.42:3000/icons/actual.png
         href: https://plougastel.tailb3be33.ts.net:444/
         description: Finances
-    - Nextcloud:
-        icon: https://nextcloud.com/c/uploads/2023/02/logo_nextcloud_white.svg
-        href: https://plougastel.tailb3be33.ts.net/
-        description: Calendar, tasks manager
+    - Vikunja:
+        icon: https://vikunja.io/favicon.svg
+        href: http://100.69.22.42:3456
+        description: To Do app
     - Stirling-pdf:
         icon: https://raw.githubusercontent.com/Stirling-Tools/Stirling-PDF/main/docs/stirling.png
         href: http://100.69.22.42:9254

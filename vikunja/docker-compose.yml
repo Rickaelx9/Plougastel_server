@@ -1,0 +1,39 @@
+services:
+  vikunja:
+    image: vikunja/vikunja
+    environment:
+      VIKUNJA_SERVICE_PUBLICURL: http://100.69.22.42:3456
+      VIKUNJA_DATABASE_HOST: db
+      VIKUNJA_DATABASE_PASSWORD: changeme
+      VIKUNJA_DATABASE_TYPE: postgres
+      VIKUNJA_DATABASE_USER: vikunja
+      VIKUNJA_DATABASE_DATABASE: vikunja
+      VIKUNJA_SERVICE_JWTSECRET: admin
+      VIKUNJA_SERVICE_TIMEZONE: Europe/Paris
+
+      # ✅ Connect to Ntfy
+      VIKUNJA_DEFAULTSETTINGS_NOTIFICATIONS_NTFY_ENABLED: true
+      VIKUNJA_DEFAULTSETTINGS_NOTIFICATIONS_NTFY_URL: http://100.69.22.42:3457
+      VIKUNJA_DEFAULTSETTINGS_NOTIFICATIONS_NTFY_TOPIC: vikunja
+
+    ports:
+      - 3456:3456
+    volumes:
+      - ./files:/app/vikunja/files
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_PASSWORD: changeme
+      POSTGRES_USER: vikunja
+    volumes:
+      - ./db:/var/lib/postgresql/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -h localhost -U $$POSTGRES_USER"]
+      interval: 2s
+      start_period: 30s

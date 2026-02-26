@@ -66,3 +66,7 @@ paperless-ngx/media/
 paperless-ngx/redisdata/
 paperless-ngx/pgdata/
 radicale/data/
+ntfy/cache/
+ntfy/ntfy/
+vikunja/files/
+vikunja/db/
