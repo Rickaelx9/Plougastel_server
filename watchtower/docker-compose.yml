@@ -13,6 +13,10 @@ services:
       - WATCHTOWER_SCHEDULE=0 0 6 * * *
       - TZ=Europe/Paris
 
+      # --- DISABLE AUTO-UPDATES ---
+      # Watchtower will only check for updates and report them, but won't apply them.
+      - WATCHTOWER_MONITOR_ONLY=true
+
       # --- NEW CONFIGURATION FOR HOMEPAGE ---
       # Enables the metrics endpoint required by Homepage
       - WATCHTOWER_HTTP_API_METRICS=true

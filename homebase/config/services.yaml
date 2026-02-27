@@ -75,11 +75,16 @@
         description: Network-wide Ad Blocking
     - Watchtower:
         icon: watchtower
-        description: Updates automatiques
+        description: Surveillance des mises à jour
+        ping: 100.69.22.42
         widget:
             type: watchtower
             url: http://100.69.22.42:9234
             key: mysecrettoken
+            fields:
+              - containers_scanned
+              - containers_updated # In monitor-only mode, this will represent available updates
+              - containers_failed
     - Scrutiny:
         icon: scrutiny
         href: http://100.69.22.42:9284
