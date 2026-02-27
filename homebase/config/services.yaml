@@ -71,7 +71,7 @@
         description: Admin & Terminal
     - Pi-hole:
         icon: https://wp-cdn.pi-hole.net/wp-content/uploads/2016/12/Vortex-R.png
-        href: https://plougastel.tailb3be33.ts.net:8004/admin/
+        href: http://100.69.22.42:8685/admin/
         description: Network-wide Ad Blocking
     - Watchtower:
         icon: watchtower

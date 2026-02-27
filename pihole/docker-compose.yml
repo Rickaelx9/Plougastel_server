@@ -6,15 +6,16 @@ services:
     ports:
       - "53:53/tcp"     # DNS traffic
       - "53:53/udp"     # DNS traffic
-      - "8685:80"       # Web Interface (http://<IP>:8080/admin)
+      - "8685:80/tcp"   # Web Interface (http://<IP>:8685/admin/)
     environment:
       - TZ=Europe/Paris
-      - FTLCONF_webserver_api_password= 
+      - FTLCONF_webserver_api_password=
+      - FTLCONF_dns_listeningMode=ALL
 
     volumes:
       - './etc-pihole:/etc/pihole'
       - './etc-dnsmasq.d:/etc/dnsmasq.d'
-    # Recommended capability additions for Pi-hole functionality
+
     cap_add:
       - NET_ADMIN
     restart: unless-stopped

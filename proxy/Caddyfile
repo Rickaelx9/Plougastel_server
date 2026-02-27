@@ -21,26 +21,3 @@
   }
   reverse_proxy 127.0.0.1:5006
 }
-
-# 8003 → Nextcloud AIO (via internal port 11000)
-:8003 {
-  encode gzip
-
-  # Nextcloud specific headers for security and performance
-  header {
-    Strict-Transport-Security "max-age=15552000; includeSubDomains"
-    # Ensure Nextcloud knows it is being proxied
-    X-Forwarded-Proto "https"
-  }
-
-  # Increase buffer size for large file uploads
-  request_body {
-     max_size 10GB
-  }
-
-  reverse_proxy 127.0.0.1:11000 {
-     # Important for Nextcloud to recognize the proxy
-     header_up Host {host}
-     header_up X-Real-IP {remote}
-  }
-}
