@@ -73,3 +73,4 @@ vikunja/db/
 vikunja/db_backup/db/
 scrutiny/config/
 scrutiny/influxdb/
+.vikunja_backup.env
