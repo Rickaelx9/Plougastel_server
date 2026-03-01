@@ -20,7 +20,11 @@ export BORG_UNKNOWN_UNENCRYPTED_REPO_ACCESS_IS_OK=yes
 echo -e "\n\033[1;33m--- ALL-IN-ONE EMERGENCY RESTORE SYSTEM ---\033[0m"
 
 # --- 1. Tailscale ---
-read -p "1. Enter Tailscale Auth Key (tskey-auth-***): " TS_AUTH_KEY
+echo -e "\n1. Tailscale Setup"
+echo "   To get your Tailscale Auth Key, please visit:"
+echo "   👉 https://login.tailscale.com/admin/settings/keys"
+echo "   Click on 'Generate auth key' to create one."
+read -p "   Enter Tailscale Auth Key (tskey-auth-***): " TS_AUTH_KEY
 
 # --- 2. USB Secrets Drive ---
 echo -e "\n2. Plug in the USB Stick (Secrets)."
