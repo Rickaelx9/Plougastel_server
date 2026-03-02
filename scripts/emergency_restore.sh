@@ -6,6 +6,7 @@ set -e
 # ==========================================
 REAL_USER=${SUDO_USER:-$USER}
 USER_HOME="/home/$REAL_USER"
+TEMP_RESTORE_BASE="$USER_HOME/tmp_restore"
 TEMP_BACKUP_DIR="$USER_HOME/temp_restoration_source"
 SERVER_DIR="$USER_HOME/Plougastel_server"
 LOCAL_MOUNT_POINT="/mnt/local_backup_drive"
@@ -133,7 +134,7 @@ fi
 # 5. CLONE SERVER REPOSITORY
 # ==========================================
 echo -e "\n\033[1;34m--- Cloning Server Repository ---\033[0m"
-rm -rf "$SERVER_DIR"
+sudo rm -rf "$SERVER_DIR"
 
 if sudo -u "$REAL_USER" git clone git@github.com:Rickaelx9/Plougastel_server.git "$SERVER_DIR"; then
     echo "✅ Repository cloned."
@@ -218,12 +219,17 @@ fi
 if [ -d "$VW_REPO" ]; then
     LATEST_VW=$(borg list "$VW_REPO" --format="{archive}{NEWLINE}" | tail -n 1)
     echo "   Extracting: $LATEST_VW"
-    mkdir -p /tmp/restore_vw && cd /tmp/restore_vw
+    RESTORE_DIR="$TEMP_RESTORE_BASE/restore_vw"
+    mkdir -p "$RESTORE_DIR" && cd "$RESTORE_DIR"
     borg extract "$VW_REPO::$LATEST_VW"
     DATA_SRC=$(find . -name "db.sqlite3" -type f -printf '%h\n' | head -n 1)
     if [ -n "$DATA_SRC" ]; then cp -r "$DATA_SRC/." "$SERVER_DIR/vaultwarden/vw-data/"; echo "   ✅ Done."; fi
-    rm -rf /tmp/restore_vw
+    rm -rf "$RESTORE_DIR"
 fi
+# Fix permissions for Vaultwarden container (runs as root UID 0)
+sudo chown -R 0:0 "$SERVER_DIR/vaultwarden/vw-data/"
+sudo chmod -R 770 "$SERVER_DIR/vaultwarden/vw-data/"
+echo "   🔧 Permissions fixed for vw-data."
 
 # --- RESTORE TRILIUM ---
 find_repo "trilium"
@@ -242,11 +248,12 @@ fi
 if [ -d "$TR_REPO" ]; then
     LATEST_TR=$(borg list "$TR_REPO" --format="{archive}{NEWLINE}" | tail -n 1)
     echo "   Extracting: $LATEST_TR"
-    mkdir -p /tmp/restore_tr && cd /tmp/restore_tr
+    RESTORE_DIR="$TEMP_RESTORE_BASE/restore_tr"
+    mkdir -p "$RESTORE_DIR" && cd "$RESTORE_DIR"
     borg extract "$TR_REPO::$LATEST_TR"
     DATA_SRC=$(find . -name "document.db" -type f -printf '%h\n' | head -n 1)
     if [ -n "$DATA_SRC" ]; then cp -r "$DATA_SRC/." "$SERVER_DIR/trilium/trilium-data/"; echo "   ✅ Done."; fi
-    rm -rf /tmp/restore_tr
+    rm -rf "$RESTORE_DIR"
 fi
 
 # --- RESTORE PAPERLESS ---
@@ -255,7 +262,7 @@ PL_REPO="$RET_REPO"
 PL_NEED_PASS="$RET_PASS"
 
 echo "♻️  Restoring Paperless-ngx..."
-mkdir -p "$SERVER_DIR/paperless"
+mkdir -p "$SERVER_DIR/paperless-ngx"
 
 if [ "$PL_NEED_PASS" == "yes" ]; then
     export BORG_PASSPHRASE="$BORG_PASS_PL"
@@ -266,20 +273,26 @@ fi
 if [ -d "$PL_REPO" ]; then
     LATEST_PL=$(borg list "$PL_REPO" --format="{archive}{NEWLINE}" | tail -n 1)
     echo "   Extracting: $LATEST_PL"
-    mkdir -p /tmp/restore_pl && cd /tmp/restore_pl
+    RESTORE_DIR="$TEMP_RESTORE_BASE/restore_pl"
+    mkdir -p "$RESTORE_DIR" && cd "$RESTORE_DIR"
     borg extract "$PL_REPO::$LATEST_PL"
 
-    # Locate the extracted parent folder (since backups might be stored with full paths)
     PL_SRC=$(find . -name "db_dump" -type d | head -n 1 | xargs dirname 2>/dev/null)
     if [ -n "$PL_SRC" ]; then
         echo "   Copying Paperless data, media, and db_dump..."
-        cp -r "$PL_SRC/data" "$SERVER_DIR/paperless/" 2>/dev/null || true
-        cp -r "$PL_SRC/media" "$SERVER_DIR/paperless/" 2>/dev/null || true
-        cp -r "$PL_SRC/db_dump" "$SERVER_DIR/paperless/" 2>/dev/null || true
+        cp -r "$PL_SRC/data" "$SERVER_DIR/paperless-ngx/" 2>/dev/null || true
+        cp -r "$PL_SRC/media" "$SERVER_DIR/paperless-ngx/" 2>/dev/null || true
+        cp -r "$PL_SRC/db_dump" "$SERVER_DIR/paperless-ngx/" 2>/dev/null || true
         echo "   ✅ Done."
     fi
-    rm -rf /tmp/restore_pl
+    rm -rf "$RESTORE_DIR"
 fi
+
+# Fix Paperless permissions (container runs as UID 1000)
+echo "   🔧 Fixing Paperless permissions..."
+mkdir -p "$SERVER_DIR/paperless-ngx/data/log"
+sudo chown -R 1000:1000 "$SERVER_DIR/paperless-ngx/data/"
+sudo chown -R 1000:1000 "$SERVER_DIR/paperless-ngx/media/"
 
 sudo chown -R "$REAL_USER:$REAL_USER" "$SERVER_DIR"
 
@@ -294,7 +307,7 @@ if [ -d "$SERVER_DIR/vaultwarden" ]; then
     (cd "$SERVER_DIR/vaultwarden" && sudo docker compose up -d)
 
     echo "   ▶ Configuring Tailscale HTTPS for Vaultwarden..."
-    sudo tailscale serve --bg --https=443 localhost:11001
+    sudo tailscale serve --bg --https=443 localhost:11002
 fi
 
 # 2. Trilium
@@ -304,21 +317,38 @@ if [ -d "$SERVER_DIR/trilium" ]; then
 fi
 
 # 3. Paperless
-if [ -d "$SERVER_DIR/paperless" ]; then
-    echo "   ▶ Starting Paperless-ngx..."
-    (cd "$SERVER_DIR/paperless" && sudo docker compose up -d)
+if [ -d "$SERVER_DIR/paperless-ngx" ]; then
+    echo "   ▶ Preparing Paperless-ngx..."
 
-    # Automated Database Restore
-    if [ -f "$SERVER_DIR/paperless/db_dump/paperless-db.sql" ]; then
-        echo "   ▶ Waiting 15s for Postgres DB to initialize before restoring dump..."
-        sleep 15
+    # Ensure log directory exists with correct permissions
+    mkdir -p "$SERVER_DIR/paperless-ngx/data/log"
+    sudo chown -R 1000:1000 "$SERVER_DIR/paperless-ngx/data/"
+    sudo chown -R 1000:1000 "$SERVER_DIR/paperless-ngx/media/"
+
+    # If we have a DB dump, restore it BEFORE webserver starts
+    if [ -f "$SERVER_DIR/paperless-ngx/db_dump/paperless-db.sql" ]; then
+        echo "   ▶ Starting ONLY the database container first..."
+        (cd "$SERVER_DIR/paperless-ngx" && sudo docker compose up -d db)
+
+        echo "   ▶ Waiting 20s for Postgres to initialize..."
+        sleep 20
+
+        # Terminate connections and drop/recreate DB cleanly
+        echo "   ▶ Dropping and recreating paperless database..."
+        sudo docker exec -i paperless-ngx-db-1 psql -U paperless postgres <<'EOSQL'
+SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = 'paperless' AND pid <> pg_backend_pid();
+DROP DATABASE IF EXISTS paperless;
+CREATE DATABASE paperless OWNER paperless;
+EOSQL
+
         echo "   ▶ Restoring Paperless Database from SQL dump..."
+        sudo docker exec -i paperless-ngx-db-1 psql -U paperless paperless < "$SERVER_DIR/paperless-ngx/db_dump/paperless-db.sql"
 
-        # Pipe the pg_dumpall output directly into psql with the 'paperless' user
-        sudo docker exec -i paperless-db-1 psql -U paperless postgres < "$SERVER_DIR/paperless/db_dump/paperless-db.sql"
-
-        echo "   ✅ Database restored! Restarting Paperless to apply changes..."
-        (cd "$SERVER_DIR/paperless" && sudo docker compose restart)
+        echo "   ✅ Database restored! Now starting all services..."
+        (cd "$SERVER_DIR/paperless-ngx" && sudo docker compose up -d)
+    else
+        echo "   ▶ No DB dump found, starting normally..."
+        (cd "$SERVER_DIR/paperless-ngx" && sudo docker compose up -d)
     fi
 fi
 
@@ -330,6 +360,7 @@ echo -e "\n\033[1;42m DONE! Critical services are live. \033[0m"
 echo -e "\n\033[1;33m🧹 Cleaning up...\033[0m"
 cd "$USER_HOME"
 rm -rf "$TEMP_BACKUP_DIR"
+rm -rf "$TEMP_RESTORE_BASE"
 
 sync
 if [ "$USE_LOCAL_HDD" = true ]; then
