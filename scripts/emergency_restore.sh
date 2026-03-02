@@ -39,7 +39,6 @@ read -s USB_PASS
 echo ""
 
 echo "   🔐 Verifying password..."
-# Try to open the device immediately to test password
 if [ ! -e "/dev/mapper/secure_usb" ]; then
     if echo -n "$USB_PASS" | sudo cryptsetup open "$USB_DEV" secure_usb -; then
         echo "   ✅ Password accepted. USB Unlocked."
@@ -50,7 +49,6 @@ if [ ! -e "/dev/mapper/secure_usb" ]; then
 else
     echo "   (Drive was already unlocked)"
 fi
-# We keep USB_PASS in memory briefly if needed, but the drive is now open.
 
 # --- 4. Backup Hard Drive ---
 echo -e "\n3. (Optional) Plug in a Backup Hard Drive (HDD/SSD)."
@@ -171,7 +169,7 @@ find_repo() {
     local service_name=$1
     local unencrypted_name="${service_name}_borg_unencrypted"
     local encrypted_name="${service_name}_borg_encrypted"
-    local cloud_backup_name="${service_name^}Backup" # Capitalizes first letter (e.g. VaultwardenBackup)
+    local cloud_backup_name="${service_name^}Backup"
 
     local found_repo=""
     local use_pass=""
@@ -179,12 +177,10 @@ find_repo() {
     echo -e "\n🔍 Searching for $service_name..."
 
     if [ "$USE_LOCAL_HDD" = true ]; then
-        # 1. Check for UNENCRYPTED
         if [ -d "$LOCAL_MOUNT_POINT/$unencrypted_name" ]; then
             echo "   ✅ Found LOCAL UNENCRYPTED: $unencrypted_name"
             found_repo="$LOCAL_MOUNT_POINT/$unencrypted_name"
             use_pass="no"
-        # 2. Check for ENCRYPTED
         elif [ -d "$LOCAL_MOUNT_POINT/$encrypted_name" ]; then
             echo "   ✅ Found LOCAL ENCRYPTED: $encrypted_name"
             found_repo="$LOCAL_MOUNT_POINT/$encrypted_name"
@@ -192,17 +188,15 @@ find_repo() {
         fi
     fi
 
-    # 3. Fallback to Cloud
     if [ -z "$found_repo" ]; then
         echo "   ☁️  Not found locally. Downloading from Google Drive..."
         mkdir -p "$TEMP_BACKUP_DIR"
         REMOTE_NAME=$(sudo -u "$REAL_USER" rclone listremotes | head -n 1 | tr -d :)
         sudo -u "$REAL_USER" rclone sync "$REMOTE_NAME:$cloud_backup_name" "$TEMP_BACKUP_DIR/$cloud_backup_name" --progress
         found_repo="$TEMP_BACKUP_DIR/$cloud_backup_name"
-        use_pass="yes" # Cloud backups are always encrypted in your setup
+        use_pass="yes"
     fi
 
-    # Return results via global vars (simpler for bash)
     RET_REPO="$found_repo"
     RET_PASS="$use_pass"
 }
@@ -218,7 +212,7 @@ mkdir -p "$SERVER_DIR/vaultwarden/vw-data"
 if [ "$VW_NEED_PASS" == "yes" ]; then
     export BORG_PASSPHRASE="$BORG_PASS_VW"
 else
-    export BORG_PASSPHRASE="" # Clear it for unencrypted
+    export BORG_PASSPHRASE=""
 fi
 
 if [ -d "$VW_REPO" ]; then
@@ -255,6 +249,38 @@ if [ -d "$TR_REPO" ]; then
     rm -rf /tmp/restore_tr
 fi
 
+# --- RESTORE PAPERLESS ---
+find_repo "paperless"
+PL_REPO="$RET_REPO"
+PL_NEED_PASS="$RET_PASS"
+
+echo "♻️  Restoring Paperless-ngx..."
+mkdir -p "$SERVER_DIR/paperless"
+
+if [ "$PL_NEED_PASS" == "yes" ]; then
+    export BORG_PASSPHRASE="$BORG_PASS_PL"
+else
+    export BORG_PASSPHRASE=""
+fi
+
+if [ -d "$PL_REPO" ]; then
+    LATEST_PL=$(borg list "$PL_REPO" --format="{archive}{NEWLINE}" | tail -n 1)
+    echo "   Extracting: $LATEST_PL"
+    mkdir -p /tmp/restore_pl && cd /tmp/restore_pl
+    borg extract "$PL_REPO::$LATEST_PL"
+
+    # Locate the extracted parent folder (since backups might be stored with full paths)
+    PL_SRC=$(find . -name "db_dump" -type d | head -n 1 | xargs dirname 2>/dev/null)
+    if [ -n "$PL_SRC" ]; then
+        echo "   Copying Paperless data, media, and db_dump..."
+        cp -r "$PL_SRC/data" "$SERVER_DIR/paperless/" 2>/dev/null || true
+        cp -r "$PL_SRC/media" "$SERVER_DIR/paperless/" 2>/dev/null || true
+        cp -r "$PL_SRC/db_dump" "$SERVER_DIR/paperless/" 2>/dev/null || true
+        echo "   ✅ Done."
+    fi
+    rm -rf /tmp/restore_pl
+fi
+
 sudo chown -R "$REAL_USER:$REAL_USER" "$SERVER_DIR"
 
 # ==========================================
@@ -277,6 +303,25 @@ if [ -d "$SERVER_DIR/trilium" ]; then
     (cd "$SERVER_DIR/trilium" && sudo docker compose up -d)
 fi
 
+# 3. Paperless
+if [ -d "$SERVER_DIR/paperless" ]; then
+    echo "   ▶ Starting Paperless-ngx..."
+    (cd "$SERVER_DIR/paperless" && sudo docker compose up -d)
+
+    # Automated Database Restore
+    if [ -f "$SERVER_DIR/paperless/db_dump/paperless-db.sql" ]; then
+        echo "   ▶ Waiting 15s for Postgres DB to initialize before restoring dump..."
+        sleep 15
+        echo "   ▶ Restoring Paperless Database from SQL dump..."
+
+        # Pipe the pg_dumpall output directly into psql with the 'paperless' user
+        sudo docker exec -i paperless-db-1 psql -U paperless postgres < "$SERVER_DIR/paperless/db_dump/paperless-db.sql"
+
+        echo "   ✅ Database restored! Restarting Paperless to apply changes..."
+        (cd "$SERVER_DIR/paperless" && sudo docker compose restart)
+    fi
+fi
+
 echo -e "\n\033[1;42m DONE! Critical services are live. \033[0m"
 
 # ==========================================
@@ -297,4 +342,5 @@ sudo cryptsetup close secure_usb
 echo "----------------------------------------------------"
 echo "✅ Vaultwarden (HTTPS): https://$TS_DOMAIN"
 echo "✅ Trilium (HTTP):      http://$TS_IP:8181"
+echo "✅ Paperless (HTTP):    http://$TS_IP:8285"
 echo "----------------------------------------------------"
