@@ -1,0 +1,20 @@
+services:
+  diun:
+    image: crazymax/diun:latest
+    container_name: diun
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - diun-data:/data
+    environment:
+      - TZ=Europe/Paris
+      - DIUN_WATCH_SCHEDULE=0 0 6 * * *
+      - DIUN_WATCH_WORKERS=10
+      - DIUN_PROVIDERS_DOCKER=true
+      - DIUN_PROVIDERS_DOCKER_WATCHBYDEFAULT=true
+      # Notify via your ntfy instance
+      - DIUN_NOTIF_NTFY_ENDPOINT=http://100.69.22.42:2934
+      - DIUN_NOTIF_NTFY_TOPIC=docker-updates
+
+volumes:
+  diun-data:
