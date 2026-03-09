@@ -4,7 +4,7 @@ services:
       container_name: webdav-quantum-public
       volumes:
           # Note: internal path changes from /data to /media for this image
-          - /mnt/ssd_crucial/media/livre/:/media
+          - /mnt/ssd_crucial/backups/GrapheneOS:/media
       ports:
           - "8185:80"
       environment:
