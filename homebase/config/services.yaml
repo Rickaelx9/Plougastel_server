@@ -73,18 +73,7 @@
         icon: https://wp-cdn.pi-hole.net/wp-content/uploads/2016/12/Vortex-R.png
         href: http://100.69.22.42:8685/admin/
         description: Network-wide Ad Blocking
-    - Watchtower:
-        icon: watchtower
-        description: Surveillance des mises à jour
-        ping: 100.69.22.42
-        widget:
-            type: watchtower
-            url: http://100.69.22.42:9234
-            key: mysecrettoken
-            fields:
-              - containers_scanned
-              - containers_updated # In monitor-only mode, this will represent available updates
-              - containers_failed
+
     - Scrutiny:
         icon: scrutiny
         href: http://100.69.22.42:9284
