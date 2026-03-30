@@ -3,10 +3,6 @@
         icon: jellyfin
         href: http://100.69.22.42:8096
         description: Serveur média
-    - Kavita:
-        icon: https://raw.githubusercontent.com/Kareadita/Wiki-Nextra/main/public/favicon.ico
-        href: http://100.69.22.42:5001/login?apiKey=C6OV05Wu2fE6NrjcS52VxOqcXd4Zmf6u
-        description: Serveur manga
     - Immich:
         icon: immich
         href: http://100.69.22.42:2283
@@ -17,14 +13,6 @@
         icon: google-sheets
         href: http://100.69.22.42:8501
         description: Prorata & Dépenses
-    - Paperless-ngx:
-        icon: paperless-ngx
-        href: http://100.69.22.42:8285
-        description: Documents
-    - Trilium:
-        icon: trilium
-        href: http://100.69.22.42:8181
-        description: Notes
     - File Browser:
         icon: https://filebrowserquantum.com/logo.svg
         href: http://100.69.22.42:8095/
@@ -37,42 +25,20 @@
         icon: https://vikunja.io/favicon.svg
         href: http://100.69.22.42:3456
         description: To Do app
-    - Stirling-pdf:
-        icon: https://raw.githubusercontent.com/Stirling-Tools/Stirling-PDF/main/docs/stirling.png
-        href: http://100.69.22.42:9254
-        description: PDF editing platform
-
-- Téléchargements:
-    - qBittorrent:
-        icon: qbittorrent
-        href: http://100.69.22.42:9091/
-        description: Torrents
-    - firefox:
-        icon: firefox
-        href: http://100.69.22.42:5800/
-        description: Browser VPN
 
 - Infra:
-    - Pironman 5:
-        icon: http://100.69.22.42:3000/icons/pironman5.png
-        href: http://100.69.22.42:34001/
-        description: Système
     - Portainer:
         icon: portainer
         href: https://100.69.22.42:9443/
         description: Système
-    - VaultWarden:
-        icon: vaultwarden
-        href: https://plougastel.tailb3be33.ts.net:9001/
-        description: Password manager
     - Cockpit:
         icon: https://raw.githubusercontent.com/cockpit-project/cockpit/main/src/branding/default/logo.svg
         href: https://plougastel.tailb3be33.ts.net:9090/
         description: Admin & Terminal
-    - Pi-hole:
-        icon: https://wp-cdn.pi-hole.net/wp-content/uploads/2016/12/Vortex-R.png
-        href: http://100.69.22.42:8685/admin/
-        description: Network-wide Ad Blocking
+    - Syncthing:
+        icon: https://raw.githubusercontent.com/syncthing/syncthing/refs/heads/main/assets/logo.ico
+        href: http://100.69.22.42:8384/
+
 
     - Scrutiny:
         icon: scrutiny

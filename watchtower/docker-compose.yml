@@ -1,0 +1,18 @@
+services:
+  watchtower:
+    image: containrrr/watchtower
+    container_name: watchtower
+    restart: always
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - WATCHTOWER_POLL_INTERVAL=86400
+      - WATCHTOWER_CLEANUP=true
+      - TZ=Europe/Paris
+      - WATCHTOWER_SCHEDULE=0 0 3 * * *
+
+      # Tell Watchtower to use Shoutrrr
+      - WATCHTOWER_NOTIFICATIONS=shoutrrr
+
+      # Your specific ntfy endpoint and topic
+      - WATCHTOWER_NOTIFICATION_URL=ntfy://100.69.22.42:2934/docker-updates?scheme=http

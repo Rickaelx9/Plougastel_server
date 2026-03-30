@@ -1,0 +1,20 @@
+services:
+  syncthing:
+    image: lscr.io/linuxserver/syncthing:latest
+    container_name: syncthing
+    environment:
+      - PUID=1000   # 0 is the 'root' user. Required so Syncthing can read Proxmox backups
+      - PGID=1000   # 0 is the 'root' group.
+      - TZ=Europe/Paris  # Change this to your actual timezone
+    volumes:
+      # This stores Syncthing's own settings so you don't lose them if the container restarts
+      - ./config:/config
+
+      # This connects your USB drive to the inside of the Syncthing container
+      - ./data:/USB-Backups
+    ports:
+      - 8384:8384         # Web UI
+      - 22000:22000/tcp   # TCP file transfers
+      - 22000:22000/udp   # QUIC file transfers
+      - 21027:21027/udp   # Local network discovery
+    restart: unless-stopped

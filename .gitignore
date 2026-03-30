@@ -75,3 +75,7 @@ scrutiny/config/
 scrutiny/influxdb/
 .vikunja_backup.env
 qbittorrent/qbit_watch/
+budget-prorata/config_participants.json
+paperless-ngx/db_dump/
+oled-venv/
+syncthing/config/
