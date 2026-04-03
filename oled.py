@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import time
 import random
+import psutil
 from board import SCL, SDA
 import busio
 from PIL import Image, ImageDraw
@@ -10,80 +11,80 @@ import adafruit_ssd1306
 i2c = busio.I2C(SCL, SDA)
 oled = adafruit_ssd1306.SSD1306_I2C(128, 64, i2c)
 
-SCALE = 2
-COLS = 128 // SCALE
-ROWS = 64 // SCALE
+WIDTH = 128
+HEIGHT = 64
+CENTER_X = WIDTH // 2
+CENTER_Y = HEIGHT // 2
+NUM_STARS = 60
 
-def create_random_grid():
-    return [[random.choice([0, 1]) for _ in range(COLS)] for _ in range(ROWS)]
+class Star:
+    def __init__(self):
+        self.reset()
+        # Randomize initial Z so they don't all spawn at the same distance
+        self.z = random.uniform(0.1, 2.0)
 
-grid = create_random_grid()
+    def reset(self):
+        # Pick a random point in 2D space, but treat it as 3D far away
+        self.x = random.uniform(-WIDTH, WIDTH)
+        self.y = random.uniform(-HEIGHT, HEIGHT)
+        self.z = 2.0 # Farthest distance
+        self.pz = self.z # Previous z for drawing motion blur/lines
 
-def count_neighbors(g, x, y):
-    count = 0
-    for i in range(-1, 2):
-        for j in range(-1, 2):
-            if i == 0 and j == 0: continue
-            col = (x + i + COLS) % COLS
-            row = (y + j + ROWS) % ROWS
-            count += g[row][col]
-    return count
+stars = [Star() for _ in range(NUM_STARS)]
 
-# Track previous states to detect if the simulation gets stuck
-history = []
-generation = 0
-MAX_GENERATIONS = 300  # Force a reset after this many steps, just in case
+# Set a time to periodically check the CPU (checking every frame is too intensive)
+last_cpu_check = 0
+current_speed = 0.05
 
 while True:
-    image = Image.new("1", (128, 64))
+    # Check CPU every 1 second to update the speed
+    if time.time() - last_cpu_check > 1.0:
+        cpu_load = psutil.cpu_percent()
+        
+        # Map CPU load (0% to 100%) to a speed value.
+        # e.g., 0% load = 0.02 speed (slow cruising)
+        # 100% load = 0.20 speed (warp speed)
+        min_speed = 0.02
+        max_speed = 0.25
+        
+        current_speed = min_speed + (cpu_load / 100.0) * (max_speed - min_speed)
+        last_cpu_check = time.time()
+
+    # Create blank image for drawing
+    image = Image.new("1", (WIDTH, HEIGHT))
     draw = ImageDraw.Draw(image)
 
-    new_grid = [[0 for _ in range(COLS)] for _ in range(ROWS)]
+    for star in stars:
+        # Update Z distance (moving the star closer to the camera)
+        star.pz = star.z
+        star.z -= current_speed
 
-    alive_count = 0
-    for y in range(ROWS):
-        for x in range(COLS):
-            # Draw current cell
-            if grid[y][x] == 1:
-                draw.rectangle((x*SCALE, y*SCALE, x*SCALE+(SCALE-1), y*SCALE+(SCALE-1)), fill=255)
-                alive_count += 1
+        # If the star has passed the camera, reset it to the background
+        if star.z <= 0:
+            star.reset()
+            continue
 
-            # Compute next generation
-            neighbors = count_neighbors(grid, x, y)
-            if grid[y][x] == 1 and (neighbors == 2 or neighbors == 3):
-                new_grid[y][x] = 1
-            elif grid[y][x] == 0 and neighbors == 3:
-                new_grid[y][x] = 1
+        # Map 3D coordinates to 2D screen coordinates
+        # Current position
+        sx = int((star.x / star.z) + CENTER_X)
+        sy = int((star.y / star.z) + CENTER_Y)
 
+        # Previous position (to draw a line/motion blur based on speed)
+        px = int((star.x / star.pz) + CENTER_X)
+        py = int((star.y / star.pz) + CENTER_Y)
+
+        # If the star goes off screen, reset it
+        if sx < 0 or sx >= WIDTH or sy < 0 or sy >= HEIGHT:
+            star.reset()
+            continue
+        
+        # Draw the star as a line from its previous position to its current position
+        # This creates a cool "warp speed" stretching effect when moving fast
+        draw.line((px, py, sx, sy), fill=255)
+
+    # Display image on OLED
     oled.image(image)
     oled.show()
-    generation += 1
-
-    # === STAGNATION DETECTION ===
-    is_stuck = False
-
-    if alive_count == 0:
-        is_stuck = True  # Everything died
-    elif new_grid in history:
-        is_stuck = True  # Stuck in a static pattern or oscillator loop
-    elif generation > MAX_GENERATIONS:
-        is_stuck = True  # Lived too long, force refresh for variety
-
-    if is_stuck:
-        # Don't wipe the screen! Just drop a "meteor" of new life
-        start_x = random.randint(0, COLS - 15)
-        start_y = random.randint(0, ROWS - 15)
-
-        for my in range(start_y, start_y + 15):
-            for mx in range(start_x, start_x + 15):
-                # 40% chance of life inside the meteor zone
-                grid[my][mx] = 1 if random.random() < 0.4 else 0
-
-        history = []
-        generation = 0
-    else:
-        grid = new_grid
-        history.append(grid)
-        # Remember the last 6 generations (catches up to 6-step oscillator loops)
-        if len(history) > 6:
-            history.pop(0)
+    
+    # Small sleep to prevent maxing out the CPU just to draw the screen
+    time.sleep(0.01)
