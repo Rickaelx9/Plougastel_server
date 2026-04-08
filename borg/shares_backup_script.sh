@@ -1,6 +1,9 @@
 #!/bin/bash
 set -e  # Exit immediately on error
 
+# --- AJOUT GESTION ERREUR ---
+source "$HOME/borg/error_handler.sh"
+# ----------------------------
 
 # --- LOAD ENVIRONMENT VARIABLES ---
 if [ -f "$HOME/borg/.shares_backup.env" ]; then
@@ -12,7 +15,6 @@ fi
 
 # --- PATHS & SETTINGS ---
 SOURCE_PATH="$SHARES_DATA_PATH"
-REPO_UNENCRYPTED="$UNENCRYPTED_SHARES_BACKUP_PATH"
 REPO_ENCRYPTED="$ENCRYPTED_SHARES_BACKUP_PATH"
 ARCHIVE_NAME="shares_and_db-{now:%Y-%m-%d_%H-%M-%S}"
 PRUNE_ARGS="--keep-daily=7 --keep-weekly=4 --keep-monthly=6"
@@ -21,32 +23,31 @@ PRUNE_ARGS="--keep-daily=7 --keep-weekly=4 --keep-monthly=6"
 RECIPIENT_EMAIL="mickael.ramilison@gmail.com"
 
 # --- Function to ensure cleanup happens even if script fails ---
-cleanup() {
+cleanup_and_handle_exit() {
     local exit_code=$? # On capture le code de sortie immédiatement
+    set +e # <--- Désactive l'arrêt sur erreur pendant le nettoyage pour garantir l'envoi du mail
+
     echo "--> Running cleanup..."
+    # Always remove the temporary database copy
+    rm -f "$DB_BACKUP_FILE"
 
-    # GESTION EMAIL D'ERREUR
     if [ "$exit_code" != "0" ]; then
-        echo "Script failed with code $exit_code. Sending notification..."
-        echo -e "Le backup 'Shares' a échoué.\nCode: $exit_code\nDate: $(date)" | mail -s "🚨 ÉCHEC BACKUP : Shares" "$RECIPIENT_EMAIL"
-
         echo "Script failed. Ensuring container is running..."
         docker compose --project-directory "$FILEBROWSER_PROJECT_PATH" start filebrowser-quantum-public || echo "Could not start container."
     fi
-
-    # Always remove the temporary database copy
-    rm -f "$DB_BACKUP_FILE"
     echo "--> Cleanup complete."
+
+    # On appelle maintenant le gestionnaire d'erreur global (qui s'occupe du mail)
+    (exit $exit_code) # Astuce pour restaurer le code d'erreur avant d'appeler handle_exit
+    handle_exit
 }
-trap cleanup EXIT
+
+# On met en place le nouveau trap combiné
+trap cleanup_and_handle_exit EXIT
 
 echo "### Starting Backup Process ###"
 
-# --- INITIALIZE REPOSITORIES ---
-if [ ! -f "$REPO_UNENCRYPTED/config" ]; then
-    echo "Initializing UNENCRYPTED repository..."
-    borg init --encryption=none "$REPO_UNENCRYPTED"
-fi
+# --- INITIALIZE REPOSITORY ---
 if [ ! -f "$REPO_ENCRYPTED/config" ]; then
     echo "Initializing ENCRYPTED repository..."
     borg init --encryption=repokey-blake2 "$REPO_ENCRYPTED"
@@ -64,27 +65,15 @@ echo "Restarting FileBrowser container... (Downtime is over)"
 docker compose --project-directory "$FILEBROWSER_PROJECT_PATH" start filebrowser-quantum-public
 echo "✅ Database is prepared and service is back online."
 
-# --- CREATE LOCAL BACKUPS IN PARALLEL ---
-echo "--> Starting local backups in parallel (Shares + Database)..."
+# --- CREATE LOCAL BACKUP ---
+echo "--> Starting local encrypted backup (Shares + Database)..."
 
-(
-    echo "Starting unencrypted backup..."
-    # MODIFIED: Added --exclude flag to skip jellyfin_media
-    borg create --stats --progress --exclude "$SOURCE_PATH/torrent" "$REPO_UNENCRYPTED::$ARCHIVE_NAME" "$SOURCE_PATH" "$DB_BACKUP_FILE"
-    borg prune $PRUNE_ARGS "$REPO_UNENCRYPTED"
-    echo "✅ Unencrypted backup complete."
-) &
+borg create --stats --progress --exclude "$SOURCE_PATH/torrent" "$REPO_ENCRYPTED::$ARCHIVE_NAME" "$SOURCE_PATH" "$DB_BACKUP_FILE"
 
-(
-    echo "Starting encrypted backup..."
-    # MODIFIED: Added --exclude flag to skip jellyfin_media
-    borg create --stats --progress --exclude "$SOURCE_PATH/torrent" "$REPO_ENCRYPTED::$ARCHIVE_NAME" "$SOURCE_PATH" "$DB_BACKUP_FILE"
-    borg prune $PRUNE_ARGS "$REPO_ENCRYPTED"
-    echo "✅ Encrypted backup complete."
-) &
+echo "--> Pruning old backups..."
+borg prune $PRUNE_ARGS "$REPO_ENCRYPTED"
 
-wait
-echo "--> All local backups have finished."
+echo "✅ Encrypted backup complete."
 
 # --- SYNCHRONIZE OFFSITE BACKUP TO GOOGLE DRIVE ---
 echo "--> Synchronizing encrypted repository to Google Drive..."

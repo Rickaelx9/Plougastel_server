@@ -11,8 +11,6 @@ source "$HOME/borg/error_handler.sh"
 TEST_MODE=false
 
 # --- LOAD ENVIRONMENT VARIABLES ---
-# Source the configuration file with our paths and passphrase.
-# The script will fail if the file doesn't exist.
 if [ -f "$HOME/borg/.immich_backup.env" ]; then
     source "$HOME/borg/.immich_backup.env"
 else
@@ -20,13 +18,29 @@ else
     exit 1
 fi
 
+# --- Function to ensure cleanup happens even if script fails ---
+cleanup_and_handle_exit() {
+    local exit_code=$? # On capture le code de sortie immédiatement
+    set +e # <--- Désactive l'arrêt sur erreur pour garantir l'envoi du mail
+
+    echo "--> Running cleanup..."
+    # Ajoutez ici d'éventuelles commandes de nettoyage si besoin à l'avenir
+    echo "--> Cleanup complete."
+
+    # On appelle le gestionnaire d'erreur global (qui s'occupe du mail)
+    (exit $exit_code) # Astuce pour restaurer le code d'erreur
+    handle_exit
+}
+
+# On met en place le trap
+trap cleanup_and_handle_exit EXIT
+
 # --- PATHS & SETTINGS (Conditional based on TEST_MODE) ---
 if [ "$TEST_MODE" = true ]; then
     echo "--- RUNNING IN TEST MODE ---"
     # Override paths to use our temporary test environment
     SOURCE_PATH="/tmp/fake_immich"
     DB_DUMP_TARGET="$SOURCE_PATH/database-backup/immich-database.sql"
-    REPO_UNENCRYPTED="/tmp/backup_unencrypted/borg_repo"
     REPO_ENCRYPTED="/tmp/backup_encrypted/borg_repo"
     # In test mode, we won't actually dump the database
     DB_DUMP_COMMAND="echo 'This is a fake DB dump for testing' > $DB_DUMP_TARGET"
@@ -34,7 +48,6 @@ else
     echo "--- RUNNING IN PRODUCTION MODE ---"
     SOURCE_PATH="$IMMICH_DATA_PATH"
     DB_DUMP_TARGET="$SOURCE_PATH/database-backup/immich-database.sql"
-    REPO_UNENCRYPTED="$UNENCRYPTED_BACKUP_PATH"
     REPO_ENCRYPTED="$ENCRYPTED_BACKUP_PATH"
     DB_DUMP_COMMAND="docker exec -t $IMMICH_DB_CONTAINER pg_dumpall --clean --if-exists --username=$DB_USERNAME > $DB_DUMP_TARGET"
 fi
@@ -45,13 +58,8 @@ ARCHIVE_NAME="{now:%Y-%m-%d_%H-%M-%S}"
 # Borg Prune Settings (keep 4 weekly, 3 monthly)
 PRUNE_ARGS="--keep-weekly=4 --keep-monthly=3"
 
-# --- STEP 0: INITIALIZE REPOSITORIES (if they don't exist) ---
-echo "Checking for repositories..."
-# New, more robust check - looks for the repo's config file
-if [ ! -f "$REPO_UNENCRYPTED/config" ]; then
-    echo "Initializing UNENCRYPTED Immich repository..."
-    borg init --encryption=none "$REPO_UNENCRYPTED"
-fi
+# --- STEP 0: INITIALIZE REPOSITORY (if it doesn't exist) ---
+echo "Checking for encrypted repository..."
 if [ ! -f "$REPO_ENCRYPTED/config" ]; then
     echo "Initializing ENCRYPTED Immich repository..."
     borg init --encryption=repokey-blake2 "$REPO_ENCRYPTED"
@@ -65,19 +73,7 @@ eval $DB_DUMP_COMMAND
 echo "✅ Database backup complete."
 
 
-# --- STEP 2: CREATE LOCAL UNENCRYPTED BACKUP (1TB HDD) ---
-echo "Creating unencrypted backup archive..."
-borg create --stats --progress \
-    --exclude "$SOURCE_PATH/thumbs" \
-    --exclude "$SOURCE_PATH/encoded-video" \
-    "$REPO_UNENCRYPTED::$ARCHIVE_NAME" "$SOURCE_PATH"
-
-echo "Pruning unencrypted repository..."
-borg prune $PRUNE_ARGS "$REPO_UNENCRYPTED"
-echo "✅ Unencrypted backup complete."
-
-
-# --- STEP 3: CREATE LOCAL ENCRYPTED BACKUP (2TB HDD) ---
+# --- STEP 2: CREATE LOCAL ENCRYPTED BACKUP ---
 echo "Creating encrypted backup archive..."
 borg create --stats --progress \
     --exclude "$SOURCE_PATH/thumbs" \
@@ -89,7 +85,7 @@ borg prune $PRUNE_ARGS "$REPO_ENCRYPTED"
 echo "✅ Encrypted backup complete."
 
 
-# --- STEP 4: SYNCHRONIZE OFFSITE BACKUP TO GOOGLE DRIVE (NEW EFFICIENT METHOD) ---
+# --- STEP 3: SYNCHRONIZE OFFSITE BACKUP TO GOOGLE DRIVE ---
 echo "Starting off-site synchronization process..."
 
 # Determine the correct rclone destination based on TEST_MODE
@@ -102,12 +98,10 @@ else
 fi
 
 # Synchronize the local encrypted repo with the remote destination.
-# This only uploads the changes, saving massive amounts of space and bandwidth.
 rclone sync \
     --progress \
     "$REPO_ENCRYPTED" "$RCLONE_DESTINATION"
 
 echo "✅ Off-site synchronization complete."
-
 
 echo "🎉 All backup tasks finished successfully! 🎉"
