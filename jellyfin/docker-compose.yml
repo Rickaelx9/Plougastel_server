@@ -10,7 +10,7 @@ services:
       - ./config:/config
       - ./cache:/cache
       - type: bind
-        source: /mnt/hdd_primary/media
+        source: /mnt/ssd_crucial/media
         target: /media
     restart: 'unless-stopped'
     # Optional - alternative address used for autodiscovery
